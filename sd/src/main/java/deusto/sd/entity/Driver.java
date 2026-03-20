@@ -1,5 +1,57 @@
 package deusto.sd.entity;
 
-public class Driver {
-    
+public class Driver extends User {
+
+    private String licenciaConducir;
+    private double calificacionMedia;
+    private boolean disponible;
+    private Long vehicleActiveId;
+
+    // Constructor vacío
+    public Driver() {
+        super(); // Constructor de la clase padre
+    }
+
+    // Constructor con todos los parámetros
+    public Driver(Long id, String nombre, String email, String password, String licenciaConducir,
+                  double calificacionMedia, boolean disponible, Long vehicleActiveId) {
+        super(id, nombre, email, password); // Inicializa los atributos del padre
+        this.licenciaConducir = licenciaConducir;
+        this.calificacionMedia = calificacionMedia;
+        this.disponible = disponible;
+        this.vehicleActiveId = vehicleActiveId;
+    }
+
+    // Getters y Setters
+    public String getLicenciaConducir() {
+        return licenciaConducir;
+    }
+
+    public void setLicenciaConducir(String licenciaConducir) {
+        this.licenciaConducir = licenciaConducir;
+    }
+
+    public double getCalificacionMedia() {
+        return calificacionMedia;
+    }
+
+    public void setCalificacionMedia(double calificacionMedia) {
+        this.calificacionMedia = calificacionMedia;
+    }
+
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
+    public Long getVehicleActiveId() {
+        return vehicleActiveId;
+    }
+
+    public void setVehicleActiveId(Long vehicleActiveId) {
+        this.vehicleActiveId = vehicleActiveId;
+    }
 }
