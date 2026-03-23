@@ -1,13 +1,39 @@
 package deusto.sd.entity;
 
-public class Vehicle {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "vehicles")
+
+public class Vehicle {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name= " matricula")
     private String matricula;
+
+    @Column(name = "marca")
     private String marca;
+
+    @Column(name = "modelo")
     private String modelo;
+
+    @Column(name = "color")
     private String color;
+
+    @Column(name = "categoria")
     private CategoriaVehiculo categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "driver_id")
     private Driver driver; // Relación @ManyToOne
 
     public enum CategoriaVehiculo {

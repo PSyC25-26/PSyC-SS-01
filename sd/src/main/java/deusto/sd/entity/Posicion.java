@@ -1,5 +1,8 @@
 package deusto.sd.entity;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class Posicion {
 
     private double latitud;
@@ -34,9 +37,7 @@ public class Posicion {
 
     @Override
     public String toString() {
-        return "Posicion{" +
-               "latitud=" + latitud +
-               ", longitud=" + longitud +
-               '}';
+        return latitud +
+               "," + longitud;
     }
 }

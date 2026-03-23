@@ -1,14 +1,44 @@
 package deusto.sd.entity;
 
-public class Trip {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "trips")
+
+public class Trip {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "passenger_id")
     private Passenger cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "driver_id")
     private Driver conductor;
+
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
     private Vehicle vehiculo;
-    private Posicion origen;
-    private Posicion destino;
+
+    @Column(name="origen")
+    private String origen;
+
+    @Column(name="destino")
+    private String destino;
+
+    @Column(name="precio")
     private double precio;
+
+    
+    @Column(name="estado")
     private EstadoViaje estado;
 
     public enum EstadoViaje {
@@ -26,8 +56,8 @@ public class Trip {
         this.cliente = cliente;
         this.conductor = conductor;
         this.vehiculo = vehiculo;
-        this.origen = origen;
-        this.destino = destino;
+        this.origen = origen.toString();
+        this.destino = destino.toString();
         this.precio = precio;
         this.estado = estado;
     }
@@ -64,20 +94,20 @@ public class Trip {
     public void setVehiculo(Vehicle vehiculo) {
         this.vehiculo = vehiculo;
     }
-
-    public Posicion getOrigen() {
+   
+    public String getOrigen() {
         return origen;
     }
 
-    public void setOrigen(Posicion origen) {
+    public void setOrigen(String origen) {
         this.origen = origen;
     }
 
-    public Posicion getDestino() {
+    public String getDestino() {
         return destino;
     }
 
-    public void setDestino(Posicion destino) {
+    public void setDestino(String destino) {
         this.destino = destino;
     }
 

@@ -1,10 +1,23 @@
 package deusto.sd.entity;
 
-public class Driver extends User {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "drivers")
+
+public class Driver extends User {
+    @Column(name = "licenciaConducir")
     private String licenciaConducir;
+    
+    @Column(name = "calificacionMedia")
     private double calificacionMedia;
+    
+    @Column(name = "disponible")
     private boolean disponible;
+    
+    @Column(name = "vehicleActiveId")
     private Long vehicleActiveId;
 
     // Constructor vacío

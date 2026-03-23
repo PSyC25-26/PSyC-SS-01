@@ -1,8 +1,17 @@
 package deusto.sd.entity;
 
-public class Passenger extends User {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "passengers")
+
+public class Passenger extends User {
+    @Column(name = "metodoPago")
     private String metodoPago;
+    
+    @Column(name = "posicionActual")
     private Posicion posicionActual;
 
     // Constructor vacío
