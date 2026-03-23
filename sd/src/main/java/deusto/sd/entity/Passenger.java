@@ -26,6 +26,12 @@ public class Passenger extends User {
         this.posicionActual = posicionActual;
     }
 
+    public Passenger(String nombre, String email, String password, String metodoPago, Posicion posicionActual) {
+        super(nombre, email, password);
+        this.metodoPago = metodoPago;
+        this.posicionActual = posicionActual;
+    }
+
     // Getters y Setters
     public String getMetodoPago() {
         return metodoPago;

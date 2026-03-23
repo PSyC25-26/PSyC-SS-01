@@ -35,6 +35,15 @@ public class Driver extends User {
         this.vehicleActiveId = vehicleActiveId;
     }
 
+    public Driver( String nombre, String email, String password, String licenciaConducir,
+        double calificacionMedia, boolean disponible, Long vehicleActiveId) {
+super(nombre, email, password); // Inicializa los atributos del padre
+this.licenciaConducir = licenciaConducir;
+this.calificacionMedia = calificacionMedia;
+this.disponible = disponible;
+this.vehicleActiveId = vehicleActiveId;
+}
+
     // Getters y Setters
     public String getLicenciaConducir() {
         return licenciaConducir;
