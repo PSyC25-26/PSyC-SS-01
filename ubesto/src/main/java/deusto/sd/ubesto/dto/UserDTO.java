@@ -1,5 +1,6 @@
 package deusto.sd.ubesto.dto;
 
+
 public class UserDTO {
     private Long id;
     private String nombre;

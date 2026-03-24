@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import deusto.sd.ubesto.dto.*;
 import deusto.sd.ubesto.service.*;
+// import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 
 @RestController
@@ -26,6 +27,7 @@ public class DriverController {
         this.driverService=DriverService;
     }
 
+    // @ApiResponse(responseCode = "201", description = "Driver registrado correctamente")
     @PostMapping("/registerDriver")
     public ResponseEntity<DriverDTO> registerDriver(@RequestBody DriverDTO driverDTO) {
         try {
@@ -49,12 +51,11 @@ public class DriverController {
             if(loginCorrecto==true){
                 return loginDTO.getEmail() +" ha iniciado sesión correctamente!";
             }else{
-                return "Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo";
+                return "Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo.";
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo";
+            return "Ha habido un fallo en el inicio de sesión. Revise el error y vuelva a intentarlo.";
         }
-    }
-    
+    } 
 }

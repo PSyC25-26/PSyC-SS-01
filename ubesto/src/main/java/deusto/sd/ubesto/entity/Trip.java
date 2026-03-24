@@ -1,6 +1,9 @@
 package deusto.sd.ubesto.entity;
 
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,15 +31,22 @@ public class Trip {
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehiculo;
 
-    @Column(name="origen")
-    private String origen;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "latitud", column = @Column(name = "latOrigen")),
+        @AttributeOverride(name = "longitud", column = @Column(name = "lonOrigen"))
+    })
+    private Posicion posicionOrigen;
 
-    @Column(name="destino")
-    private String destino;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "latitud", column = @Column(name = "latDestino")),
+        @AttributeOverride(name = "longitud", column = @Column(name = "lonDestino"))
+    })
+    private Posicion posicionDestino;
 
     @Column(name="precio")
     private double precio;
-
     
     @Column(name="estado")
     private EstadoViaje estado;
@@ -50,22 +60,34 @@ public class Trip {
     }
 
     // Constructor con todos los parámetros
-    public Trip(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion origen,
-                Posicion destino, double precio, EstadoViaje estado) {
-        this.id = id;
-        this.cliente = cliente;
-        this.conductor = conductor;
-        this.vehiculo = vehiculo;
-        this.origen = origen.toString();
-        this.destino = destino.toString();
-        this.precio = precio;
-        this.estado = estado;
-    }
 
     // Getters y Setters
     public Long getId() {
         return id;
     }
+
+    public Trip(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, double latOrigen, Posicion posicionOrigen, Posicion posicionDestino,
+        double precio, EstadoViaje estado) {
+        this.id = id;
+        this.cliente = cliente;
+        this.conductor = conductor;
+        this.vehiculo = vehiculo;
+        this.posicionOrigen = posicionOrigen;
+        this.posicionDestino = posicionDestino;
+        this.precio = precio;
+        this.estado = estado;
+    }
+
+    public Trip( Passenger cliente, Driver conductor, Vehicle vehiculo, double latOrigen, Posicion posicionOrigen, Posicion posicionDestino,
+        double precio, EstadoViaje estado) {
+    this.cliente = cliente;
+    this.conductor = conductor;
+    this.vehiculo = vehiculo;
+    this.posicionOrigen = posicionOrigen;
+    this.posicionDestino = posicionDestino;
+    this.precio = precio;
+    this.estado = estado;
+}
 
     public void setId(Long id) {
         this.id = id;
@@ -95,22 +117,6 @@ public class Trip {
         this.vehiculo = vehiculo;
     }
    
-    public String getOrigen() {
-        return origen;
-    }
-
-    public void setOrigen(String origen) {
-        this.origen = origen;
-    }
-
-    public String getDestino() {
-        return destino;
-    }
-
-    public void setDestino(String destino) {
-        this.destino = destino;
-    }
-
     public double getPrecio() {
         return precio;
     }
@@ -126,4 +132,6 @@ public class Trip {
     public void setEstado(EstadoViaje estado) {
         this.estado = estado;
     }
+
+
 }

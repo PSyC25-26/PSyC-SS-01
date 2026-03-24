@@ -4,20 +4,20 @@ import deusto.sd.ubesto.entity.Posicion;
 
 public class PassengerDTO extends UserDTO{
     private String metodoPago;
-    private String posicionActual;
+    private Posicion posicionActual;
     
-    public PassengerDTO(Long id, String nombre, String email, String password, String metodoPago,
-            Posicion posicionActual) {
+    public PassengerDTO(Long id, String nombre, String email, String password, String metodoPago, 
+        Posicion posicionActual) {
         super(id, nombre, email, password);
         this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual.toString();
+        this.posicionActual = posicionActual;
     }
 
     public PassengerDTO(String nombre, String email, String password, String metodoPago,
         Posicion posicionActual) {
         super(nombre, email, password);
         this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual.toString();
+        this.posicionActual = posicionActual;
     }
 
     public PassengerDTO() {
@@ -32,13 +32,11 @@ public class PassengerDTO extends UserDTO{
     }
 
     public Posicion getPosicionActual() {
-        String[] posi= posicionActual.split(",");
-        return new Posicion(Double.valueOf(posi[0]),Double.valueOf(posi[1]));
+        return posicionActual;
     }
 
     public void setPosicionActual(Posicion posicionActual) {
-        this.posicionActual = posicionActual.toString();
+        this.posicionActual = posicionActual;
     }
 
-    
 }

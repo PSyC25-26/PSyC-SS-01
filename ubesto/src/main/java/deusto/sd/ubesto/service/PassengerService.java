@@ -26,7 +26,8 @@ public class PassengerService {
                 passengerDTO.setId(null);
             }
     
-            Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getMetodoPago(), passengerDTO.getPosicionActual());
+            Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getMetodoPago(), 
+            passengerDTO.getPosicionActual());
             Passenger savedPassenger = passengerRepository.save(newPassenger);
     
             passengerDTO.setId(savedPassenger.getId());

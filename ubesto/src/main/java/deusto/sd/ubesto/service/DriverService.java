@@ -25,6 +25,9 @@ public class DriverService {
             if(driverDTO.getId()!=null){
                 driverDTO.setId(null);
             }
+            if(driverDTO.getVehicleActiveId()!=null){
+                driverDTO.setVehicleActiveId(null);
+            }
     
             Driver newDriver =  new Driver(driverDTO.getNombre(), driverDTO.getEmail(),driverDTO.getPassword(),driverDTO.getLicenciaConducir(),
             driverDTO.getCalificacionMedia(),driverDTO.isDisponible(),driverDTO.getVehicleActiveId());

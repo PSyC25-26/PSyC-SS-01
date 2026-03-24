@@ -17,7 +17,7 @@ public class LoggedUser {
     private String user_type;
     @Column(name="user_id")
     private Long user_id;
-    @Column(name="tipo")
+    @Column(name="token")
     private String token;
     
     public LoggedUser(Long id, String user_type, Long user_id, String token) {

@@ -1,6 +1,7 @@
 package deusto.sd.ubesto.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -11,8 +12,9 @@ public class Passenger extends User {
     @Column(name = "metodoPago")
     private String metodoPago;
     
-    @Column(name = "posicionActual")
-    private String posicionActual;
+    @Embedded
+    @Column(name = "posicion_actual")
+    private Posicion posicionActual;
 
     // Constructor vacío
     public Passenger() {
@@ -20,33 +22,38 @@ public class Passenger extends User {
     }
 
     // Constructor con todos los parámetros
-    public Passenger(Long id, String nombre, String email, String password, String metodoPago, Posicion posicionActual) {
+    public Passenger(Long id, String nombre, String email, String password, String metodoPago, 
+        Posicion posicionActual) {
         super(id, nombre, email, password);
         this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual.toString();
+        this.posicionActual = posicionActual;
     }
 
-    public Passenger(String nombre, String email, String password, String metodoPago, Posicion posicionActual) {
+    public Passenger(String nombre, String email, String password, String metodoPago,
+        Posicion posicionActual) {
         super(nombre, email, password);
         this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual.toString();
-    }
-
-    // Getters y Setters
-    public String getMetodoPago() {
-        return metodoPago;
+        this.posicionActual = posicionActual;
     }
 
     public void setMetodoPago(String metodoPago) {
         this.metodoPago = metodoPago;
     }
 
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+
     public Posicion getPosicionActual() {
-        String[] posi= posicionActual.split(",");
-        return new Posicion(Double.valueOf(posi[0]),Double.valueOf(posi[1]));
+        return posicionActual;
     }
 
     public void setPosicionActual(Posicion posicionActual) {
-        this.posicionActual = posicionActual.toString();
+        this.posicionActual = posicionActual;
     }
+
+    
+
+    
+
 }

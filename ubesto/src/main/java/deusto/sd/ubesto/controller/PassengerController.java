@@ -37,17 +37,20 @@ public class PassengerController {
     }
 
     @PostMapping("/loginPassenger")
-    public String loginPassenger(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<String> loginPassenger(@RequestBody LoginDTO loginDTO) {
         try {
             boolean loginCorrecto = passengerService.loginPassenger(loginDTO);
             if(loginCorrecto){
-                return loginDTO.getEmail() +" ha iniciado sesión correctamente!";
+                return  new ResponseEntity<>(loginDTO.getEmail() +" ha iniciado sesión correctamente!",
+                HttpStatus.ACCEPTED);
             }else{
-                return "Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo";
+                return new ResponseEntity<>("Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo",
+                    HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo";
+            return new ResponseEntity<>("Ha habido un fallo en el inicio de sesión. Revise el error y vuelva a intentarlo.",
+                HttpStatus.BAD_REQUEST);
         }
     }
     
