@@ -1,5 +1,10 @@
 package deusto.sd.ubesto.swing;
 import javax.swing.*;
+
+import org.springframework.boot.SpringApplication;
+
+import deusto.sd.ubesto.UbestoApplication;
+
 import java.awt.*;
 
 public class VentanaPrincipal extends JFrame {
@@ -38,6 +43,8 @@ public class VentanaPrincipal extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
+        // SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
+
+        SpringApplication.run(UbestoApplication.class, args);
     }
 }
