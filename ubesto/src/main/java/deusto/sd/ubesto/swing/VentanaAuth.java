@@ -34,12 +34,11 @@ public class VentanaAuth extends JFrame {
         JTextField txtLicencia = new JTextField();
         if (rol.equals("CONDUCTOR")) {
             panelRegistro.add(new JLabel("LicenciaConducir:")); panelRegistro.add(txtLicencia);
-            // Ocultamos la calificación en el registro visual, se pondrá por defecto.
         }
 
         JButton btnRegister = new JButton("REGISTER");
         btnRegister.setBackground(new Color(100, 200, 100));
-        panelRegistro.add(new JLabel("")); // Celda vacía para cuadrar el grid
+        panelRegistro.add(new JLabel("")); 
         panelRegistro.add(btnRegister);
 
         // --- SECCIÓN LOGIN ---
@@ -69,21 +68,20 @@ public class VentanaAuth extends JFrame {
                 String url;
                 String jsonBody;
 
+                // Apuntamos al puerto 8080 que es donde está tu Spring Boot
                 if (rol.equals("PASAJERO")) {
-                    url = "http://localhost:8060/passengers/registerPassenger";
-                    // Coincide con PassengerDTO
+                    url = "http://localhost:8080/passengers/registerPassenger"; //
                     jsonBody = String.format(
                         "{\"nombre\":\"%s\", \"email\":\"%s\", \"password\":\"%s\", \"metodoPago\":\"efectivo\", \"posicionActual\":{\"latitud\":0.0, \"longitud\":0.0}}", 
                         nombre, email, pass
-                    );
+                    ); //
                 } else {
-                    url = "http://localhost:8060/drivers/registerDriver";
+                    url = "http://localhost:8080/drivers/registerDriver"; //
                     String licencia = txtLicencia.getText();
-                    // Coincide con DriverDTO
                     jsonBody = String.format(
                         "{\"nombre\":\"%s\", \"email\":\"%s\", \"password\":\"%s\", \"licenciaConducir\":\"%s\", \"calificacionMedia\":5.0, \"disponible\":true}", 
                         nombre, email, pass, licencia
-                    );
+                    ); //
                 }
 
                 HttpClient client = HttpClient.newHttpClient();
@@ -95,7 +93,8 @@ public class VentanaAuth extends JFrame {
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                if (response.statusCode() == 201) { // 201 CREATED según tu Controller
+                // Tu PassengerController devuelve 201 CREATED
+                if (response.statusCode() == 201) { 
                     JOptionPane.showMessageDialog(this, "Registro exitoso en la Base de Datos.");
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al registrar (Código " + response.statusCode() + ").\n" + response.body(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -113,12 +112,12 @@ public class VentanaAuth extends JFrame {
                 String email = txtLogEmail.getText();
                 String pass = new String(txtLogPass.getPassword());
                 
+                // Apuntamos al puerto 8080
                 String url = rol.equals("PASAJERO") ? 
-                    "http://localhost:8060/passengers/loginPassenger" : 
-                    "http://localhost:8060/drivers/loginDriver";
+                    "http://localhost:8080/passengers/loginPassenger" : //
+                    "http://localhost:8080/drivers/loginDriver"; //
 
-                // Coincide con LoginDTO
-                String jsonBody = String.format("{\"email\":\"%s\", \"password\":\"%s\"}", email, pass);
+                String jsonBody = String.format("{\"email\":\"%s\", \"password\":\"%s\"}", email, pass); //
 
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -129,17 +128,14 @@ public class VentanaAuth extends JFrame {
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                // Tu PassengerController devuelve 202 (ACCEPTED) o el Driver devuelve un String directo (200 OK)
                 if (response.statusCode() == 200 || response.statusCode() == 202) { 
                     String respuestaBackend = response.body();
                     
-                    // Comprobamos el String que devuelve tu Controller para asegurar que es un éxito
-                    if(respuestaBackend.contains("correctamente!")) {
+                    if(respuestaBackend.contains("correctamente!")) { //
                         JOptionPane.showMessageDialog(this, respuestaBackend);
                         new DashboardFrame(rol, email).setVisible(true);
-                        dispose(); // Cierra esta ventana
+                        dispose(); 
                     } else {
-                        // Caso de fallo controlado (tu backend devuelve String con el error)
                         JOptionPane.showMessageDialog(this, respuestaBackend, "Aviso de Login", JOptionPane.WARNING_MESSAGE);
                     }
                 } else {
@@ -153,7 +149,7 @@ public class VentanaAuth extends JFrame {
         });
 
         add(panelRegistro);
-        add(Box.createVerticalStrut(20)); // Espacio
+        add(Box.createVerticalStrut(20)); 
         add(panelLogin);
     }
 }
