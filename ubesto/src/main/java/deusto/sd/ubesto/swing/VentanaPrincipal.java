@@ -1,25 +1,40 @@
+package deusto.sd.ubesto.swing;
 import javax.swing.*;
 import java.awt.*;
 
 public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal() {
-        setTitle("Uber App - Inicio");
-        setSize(300, 200);
+        setTitle("Ubesto - Inicio");
+        setSize(400, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(3, 1, 10, 10));
+        
+        // Usamos un GridBagLayout para centrar los botones como en el diseño
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JButton btnPasajero = new JButton("Soy Pasajero");
-        JButton btnConductor = new JButton("Soy Conductor");
-        JButton btnLogin = new JButton("Ya tengo cuenta (Login)");
+        JButton btnViajar = new JButton("Quiero viajar");
+        btnViajar.setBackground(new Color(100, 200, 100)); // Color verde estilo boceto
+        
+        JButton btnConducir = new JButton("Quiero conducir");
+        btnConducir.setBackground(new Color(100, 200, 100));
 
-        btnPasajero.addActionListener(e -> new VentanaRegistro("PASAJERO").setVisible(true));
-        btnConductor.addActionListener(e -> new VentanaRegistro("CONDUCTOR").setVisible(true));
-        btnLogin.addActionListener(e -> new VentanaLogin().setVisible(true));
+        // Redirigen a la ventana combinada de Auth
+        btnViajar.addActionListener(e -> {
+            new VentanaAuth("PASAJERO").setVisible(true);
+            dispose();
+        });
+        
+        btnConducir.addActionListener(e -> {
+            new VentanaAuth("CONDUCTOR").setVisible(true);
+            dispose();
+        });
 
-        add(btnPasajero);
-        add(btnConductor);
-        add(btnLogin);
+        gbc.gridy = 0; add(btnViajar, gbc);
+        gbc.gridy = 1; add(btnConducir, gbc);
     }
 
     public static void main(String[] args) {
