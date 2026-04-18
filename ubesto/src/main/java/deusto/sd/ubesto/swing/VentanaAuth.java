@@ -32,10 +32,8 @@ public class VentanaAuth extends JFrame {
         
         // Campos extra para conductor
         JTextField txtLicencia = new JTextField();
-        JTextField txtPrecio = new JTextField();
         if (rol.equals("CONDUCTOR")) {
             panelRegistro.add(new JLabel("LicenciaConducir:")); panelRegistro.add(txtLicencia);
-            panelRegistro.add(new JLabel("PrecioPorKm:")); panelRegistro.add(txtPrecio);
         }
 
         JButton btnRegister = new JButton("REGISTER");
