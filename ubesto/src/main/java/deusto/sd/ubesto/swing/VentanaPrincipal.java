@@ -20,15 +20,11 @@ public class VentanaPrincipal extends JFrame {
         
         JButton btnViajar = new JButton("Quiero viajar");
         
-        LineBorder bordeVerde = new LineBorder(new Color(24, 152, 87), 2, true);
         // btnViajar.setForeground(Color.white);
-        // btnViajar.setBorder(bordeVerde);
         btnViajar.setBackground(new Color(64, 192, 87)); // Color verde estilo boceto: Color(100, 200, 100)
-        // btnViajar.setSize(200,400);
         
         JButton btnConducir = new JButton("Quiero conducir");
         // btnConducir.setForeground(Color.white);
-        // btnConducir.setBorder(bordeVerde);
         btnConducir.setBackground(new Color(64, 192, 87));
         
 
@@ -46,10 +42,4 @@ public class VentanaPrincipal extends JFrame {
         gbc.gridy = 0; add(btnViajar, gbc);
         gbc.gridy = 1; add(btnConducir, gbc);
     }
-
-    // public static void main(String[] args) {
-    //     SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
-
-    //     SpringApplication.run(UbestoApplication.class, args);
-    // }
 }
