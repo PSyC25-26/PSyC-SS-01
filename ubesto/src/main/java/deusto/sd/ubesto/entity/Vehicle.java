@@ -56,6 +56,16 @@ public class Vehicle {
         this.driver = driver;
     }
 
+    public Vehicle( String matricula, String marca, String modelo, String color,
+        CategoriaVehiculo categoria, Driver driver) {
+        this.matricula = matricula;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.color = color;
+        this.categoria = categoria;
+        this.driver = driver;
+    }
+
     // Getters y Setters
     public Long getId() {
         return id;

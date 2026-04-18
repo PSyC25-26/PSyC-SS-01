@@ -14,12 +14,14 @@ public class DashboardFrame extends JFrame {
         lblBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(lblBienvenida, BorderLayout.NORTH);
 
+        String verbo="Editar";
+
         // Si es pasajero, añadimos los botones del boceto
         if (rol.equals("PASAJERO")) {
             JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
-            
+            verbo="Solicitar";
             JButton btnEditar = new JButton("Editar Datos");
-            JButton btnBuscar = new JButton("Buscar Viaje");
+            JButton btnBuscar = new JButton(verbo + " Viaje");
             JButton btnHistorial = new JButton("Ver historial de viajes");
             
             Color colorBoton = new Color(100, 200, 100);
