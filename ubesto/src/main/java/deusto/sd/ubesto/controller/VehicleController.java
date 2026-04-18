@@ -24,7 +24,7 @@ public class VehicleController {
     public ResponseEntity<VehicleDTO> createVehicle(@RequestBody VehicleDTO vehicleDTO, 
         @PathVariable("driver_id") Long driver_id) {
         try {
-            VehicleDTO newVehicle = vehicleService.createVehicle(vehicleDTO,driver_id);
+            VehicleDTO newVehicle = vehicleService.createVehicle(vehicleDTO, driver_id);
             if(newVehicle==null){
                 return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
             }else{

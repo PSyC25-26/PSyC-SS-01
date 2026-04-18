@@ -1,73 +1,34 @@
-package deusto.sd.ubesto.entity;
+package deusto.sd.ubesto.dto;
 
+import deusto.sd.ubesto.entity.Driver;
+import deusto.sd.ubesto.entity.Passenger;
+import deusto.sd.ubesto.entity.Posicion;
+import deusto.sd.ubesto.entity.Trip.EstadoViaje;
+import deusto.sd.ubesto.entity.Vehicle;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "trips")
-
-public class Trip {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class TripDTO {
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "passenger_id")
     private Passenger cliente;
+    private EstadoViaje estado;
+    private Posicion posicionOrigen;
+    private Posicion posicionDestino;
+    private double precio;
 
-    @ManyToOne
-    @JoinColumn(name = "driver_id")
     private Driver conductor;
-
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id")
     private Vehicle vehiculo;
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "latitud", column = @Column(name = "latOrigen")),
-        @AttributeOverride(name = "longitud", column = @Column(name = "lonOrigen"))
-    })
-    private Posicion posicionOrigen;
-
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "latitud", column = @Column(name = "latDestino")),
-        @AttributeOverride(name = "longitud", column = @Column(name = "lonDestino"))
-    })
-    private Posicion posicionDestino;
-
-    @Column(name="precio")
-    private double precio;
     
-    @Column(name="estado")
-    private EstadoViaje estado;
-
-    public enum EstadoViaje {
-        SOLICITADO, ACEPTADO, EN_CURSO, FINALIZADO, CANCELADO
-    }
-
-    // Constructor vacío
-    public Trip() {
-    }
-
-    // Constructor con todos los parámetros
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public Trip(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen, Posicion posicionDestino,
-        double precio, EstadoViaje estado) {
+    public TripDTO(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen,
+            Posicion posicionDestino, double precio, EstadoViaje estado) {
         this.id = id;
         this.cliente = cliente;
         this.conductor = conductor;
@@ -78,8 +39,8 @@ public class Trip {
         this.estado = estado;
     }
 
-    public Trip( Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen, Posicion posicionDestino,
-        double precio, EstadoViaje estado) {
+    public TripDTO( Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen,
+        Posicion posicionDestino, double precio, EstadoViaje estado) {
     this.cliente = cliente;
     this.conductor = conductor;
     this.vehiculo = vehiculo;
@@ -88,6 +49,14 @@ public class Trip {
     this.precio = precio;
     this.estado = estado;
 }
+
+    public TripDTO() {
+
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     public void setId(Long id) {
         this.id = id;
@@ -116,7 +85,23 @@ public class Trip {
     public void setVehiculo(Vehicle vehiculo) {
         this.vehiculo = vehiculo;
     }
-   
+
+    public Posicion getPosicionOrigen() {
+        return posicionOrigen;
+    }
+
+    public void setPosicionOrigen(Posicion posicionOrigen) {
+        this.posicionOrigen = posicionOrigen;
+    }
+
+    public Posicion getPosicionDestino() {
+        return posicionDestino;
+    }
+
+    public void setPosicionDestino(Posicion posicionDestino) {
+        this.posicionDestino = posicionDestino;
+    }
+
     public double getPrecio() {
         return precio;
     }
@@ -133,5 +118,6 @@ public class Trip {
         this.estado = estado;
     }
 
-
+    
+    
 }

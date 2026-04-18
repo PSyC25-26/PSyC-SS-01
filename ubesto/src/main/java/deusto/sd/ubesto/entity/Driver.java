@@ -14,9 +14,6 @@ public class Driver extends User {
     @Column(name = "calificacionMedia")
     private double calificacionMedia;
     
-    @Column(name = "disponible")
-    private boolean disponible;
-    
     @Column(name = "vehicleActiveId")
     private Long vehicleActiveId;
 
@@ -27,20 +24,18 @@ public class Driver extends User {
 
     // Constructor con todos los parámetros
     public Driver(Long id, String nombre, String email, String password, String licenciaConducir,
-            double calificacionMedia, boolean disponible, Long vehicleActiveId) {
+            double calificacionMedia,  Long vehicleActiveId) {
         super(id, nombre, email, password); // Inicializa los atributos del padre
         this.licenciaConducir = licenciaConducir;
         this.calificacionMedia = calificacionMedia;
-        this.disponible = disponible;
         this.vehicleActiveId = vehicleActiveId;
     }
 
     public Driver( String nombre, String email, String password, String licenciaConducir,
-            double calificacionMedia, boolean disponible, Long vehicleActiveId) {
+            double calificacionMedia,  Long vehicleActiveId) {
         super(nombre, email, password); // Inicializa los atributos del padre
         this.licenciaConducir = licenciaConducir;
         this.calificacionMedia = calificacionMedia;
-        this.disponible = disponible;
         this.vehicleActiveId = vehicleActiveId;
     }
 
@@ -61,13 +56,7 @@ public class Driver extends User {
         this.calificacionMedia = calificacionMedia;
     }
 
-    public boolean isDisponible() {
-        return disponible;
-    }
-
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
-    }
+    
 
     public Long getVehicleActiveId() {
         return vehicleActiveId;
@@ -76,4 +65,5 @@ public class Driver extends User {
     public void setVehicleActiveId(Long vehicleActiveId) {
         this.vehicleActiveId = vehicleActiveId;
     }
+
 }

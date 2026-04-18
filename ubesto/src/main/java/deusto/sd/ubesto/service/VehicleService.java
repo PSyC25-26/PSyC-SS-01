@@ -37,7 +37,7 @@ public class VehicleService {
                 Driver d=d1.get();
                 DriverDTO drDTO= new DriverDTO(d.getId(),d.getNombre(),d.getEmail(),
                 d.getPassword(),d.getLicenciaConducir(),d.getCalificacionMedia(),
-                d.isDisponible(),null);
+                null);
 
                 vehicleDTO.setDriver(drDTO);
                 return vehicleDTO;
