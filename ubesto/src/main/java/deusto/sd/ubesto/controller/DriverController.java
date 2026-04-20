@@ -16,6 +16,10 @@ import deusto.sd.ubesto.service.*;
 public class DriverController {
 
     private final DriverService driverService;
+
+    public DriverService getDriverService() {
+        return driverService;
+    } 
     
     public DriverController(DriverService DriverService){
         this.driverService=DriverService;
@@ -51,5 +55,7 @@ public class DriverController {
             e.printStackTrace();
             return "Ha habido un fallo en el inicio de sesión. Revise el error y vuelva a intentarlo.";
         }
-    } 
+    }
+
+ 
 }

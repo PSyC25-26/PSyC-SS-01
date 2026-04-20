@@ -132,6 +132,22 @@ public class Trip {
     public void setEstado(EstadoViaje estado) {
         this.estado = estado;
     }
+    
+    public Posicion getPosicionOrigen() {
+        return posicionOrigen;
+    }
+
+    public void setPosicionOrigen(Posicion posicionOrigen) {
+        this.posicionOrigen = posicionOrigen;
+    }
+
+    public Posicion getPosicionDestino() {
+        return posicionDestino;
+    }
+
+    public void setPosicionDestino(Posicion posicionDestino) {
+        this.posicionDestino = posicionDestino;
+    }
 
 
 }
