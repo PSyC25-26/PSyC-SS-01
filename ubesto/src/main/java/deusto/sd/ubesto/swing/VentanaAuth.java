@@ -16,7 +16,11 @@ public class VentanaAuth extends JFrame {
         setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        // setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        setLayout(new BorderLayout());
+
+        JPanel panelMain = new JPanel();
+        panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));
 
         // --- SECCIÓN REGISTRO ---
         JPanel panelRegistro = new JPanel(new GridLayout(0, 2, 5, 5));
@@ -55,6 +59,13 @@ public class VentanaAuth extends JFrame {
         btnLogin.setBackground(new Color(100, 200, 100));
         panelLogin.add(new JLabel("")); 
         panelLogin.add(btnLogin);
+
+        // --- SECCIÓN ATRAS ---
+        JPanel panelAtras = new JPanel();
+        JButton btnAtras = new JButton("Atras");
+        panelAtras.setLayout(new BorderLayout());
+
+        panelAtras.add(btnAtras,BorderLayout.WEST);
 
         // --- EVENTOS ---
         
@@ -148,8 +159,21 @@ public class VentanaAuth extends JFrame {
             }
         });
 
-        add(panelRegistro);
-        add(Box.createVerticalStrut(20)); 
-        add(panelLogin);
+        btnAtras.addActionListener(e ->{
+            try {
+                new VentanaPrincipal().setVisible(true);;
+                dispose();
+            } catch (Exception ex) {
+                // TODO: handle exception
+                ex.printStackTrace();
+            }
+        });
+
+        add(panelMain, BorderLayout.CENTER);
+
+        panelMain.add(panelRegistro);
+        panelMain.add(Box.createVerticalStrut(20)); 
+        panelMain.add(panelLogin);
+        add(panelAtras,BorderLayout.SOUTH);
     }
 }

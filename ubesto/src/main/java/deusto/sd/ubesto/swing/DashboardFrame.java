@@ -14,7 +14,7 @@ public class DashboardFrame extends JFrame {
         lblBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(lblBienvenida, BorderLayout.NORTH);
 
-        String verbo="Editar";
+        String verbo="";
 
         // Si es pasajero, añadimos los botones del boceto
         if (rol.equals("PASAJERO")) {
@@ -30,7 +30,7 @@ public class DashboardFrame extends JFrame {
             btnHistorial.setBackground(colorBoton);
             
             // Hacer los botones un poco más grandes
-            Dimension d = new Dimension(150, 80);
+            Dimension d = new Dimension(150, 180);
             btnEditar.setPreferredSize(d);
             btnBuscar.setPreferredSize(d);
             btnHistorial.setPreferredSize(d);

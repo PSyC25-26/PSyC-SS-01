@@ -1,5 +1,7 @@
 package deusto.sd.ubesto.swing;
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import java.awt.*;
@@ -10,7 +12,11 @@ public class VentanaPrincipal extends JFrame {
         setSize(400, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        this.getContentPane().setBackground(new Color(224, 250, 228));
         
+        LineBorder bordeBerde = new LineBorder(new Color(47,158,68),2,true);
+        Color verdeBoton =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
+
         // Usamos un GridBagLayout para centrar los botones como en el diseño
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -19,14 +25,16 @@ public class VentanaPrincipal extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
         JButton btnViajar = new JButton("Quiero viajar");
-        
-        // btnViajar.setForeground(Color.white);
-        btnViajar.setBackground(new Color(64, 192, 87)); // Color verde estilo boceto: Color(100, 200, 100)
+        btnViajar.setForeground(Color.white);
+        btnViajar.setBackground(verdeBoton);
+        btnViajar.setBorder(new CompoundBorder(bordeBerde, 
+            new EmptyBorder(15, 25, 15, 25)));
         
         JButton btnConducir = new JButton("Quiero conducir");
-        // btnConducir.setForeground(Color.white);
-        btnConducir.setBackground(new Color(64, 192, 87));
-        
+        btnConducir.setForeground(Color.white);
+        btnConducir.setBackground(verdeBoton);
+        btnConducir.setBorder(new CompoundBorder(bordeBerde, 
+            new EmptyBorder(15, 25, 15, 25)));
 
         // Redirigen a la ventana combinada de Auth
         btnViajar.addActionListener(e -> {
