@@ -22,8 +22,8 @@ import deusto.sd.ubesto.entity.Passenger;
 public class IntegrationTest {
     @Test
     void testCreatePassenger(){
-        String nombrePass = "David";
-        String emailPass = "david@gmail.com";
+        String nombrePass = "David3";
+        String emailPass = "david3@gmail.com";
         String passPass = "1234";
 
         String url = "http://localhost:8080/passengers/registerPassenger"; //
@@ -41,7 +41,7 @@ public class IntegrationTest {
         try {
             HttpResponse<String> driverResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
             assertNotNull(driverResponse);
-            assertEquals(HttpStatus.CREATED, driverResponse.statusCode());
+            assertEquals(HttpStatus.CREATED.value(), driverResponse.statusCode());
 
         } catch (Exception e) {
             // TODO: handle exception
