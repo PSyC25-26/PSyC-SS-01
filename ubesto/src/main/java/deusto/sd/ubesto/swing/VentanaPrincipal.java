@@ -16,6 +16,7 @@ public class VentanaPrincipal extends JFrame {
         
         LineBorder bordeBerde = new LineBorder(new Color(47,158,68),2,true);
         Color verdeBoton =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
+        Font fontBotones = new Font("SansSerif", Font.BOLD, 12);
 
         // Usamos un GridBagLayout para centrar los botones como en el diseño
         setLayout(new GridBagLayout());
@@ -25,12 +26,14 @@ public class VentanaPrincipal extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
         JButton btnViajar = new JButton("Quiero viajar");
+        btnViajar.setFont(fontBotones);
         btnViajar.setForeground(Color.white);
         btnViajar.setBackground(verdeBoton);
         btnViajar.setBorder(new CompoundBorder(bordeBerde, 
             new EmptyBorder(15, 25, 15, 25)));
         
         JButton btnConducir = new JButton("Quiero conducir");
+        btnConducir.setFont(fontBotones);
         btnConducir.setForeground(Color.white);
         btnConducir.setBackground(verdeBoton);
         btnConducir.setBorder(new CompoundBorder(bordeBerde, 
