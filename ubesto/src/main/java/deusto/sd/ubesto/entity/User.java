@@ -1,6 +1,7 @@
 package deusto.sd.ubesto.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,23 +18,29 @@ public abstract class User {
     private String email;
     @Column(name = "password")
     private String password;
+    @Column(name = "monedero")
+    private double monedero = 100.0; // Saldo inicial para pruebas
+    @Embedded
+    private Posicion posicionActual;
 
     // Constructor vacío
     public User() {
     }
 
     // Constructor con parámetros
-    public User(Long id, String nombre, String email, String password) {
+    public User(Long id, String nombre, String email, String password, Posicion posicionActual) {
         this.id = id;
         this.nombre = nombre;
         this.email = email;
         this.password = password;
+        this.posicionActual = posicionActual;
     }
 
-    public User(String nombre, String email, String password) {
+    public User(String nombre, String email, String password, Posicion posicionActual) {
         this.nombre = nombre;
         this.email = email;
         this.password = password;
+        this.posicionActual = posicionActual;
     }
 
     // Getters y Setters
@@ -53,6 +60,7 @@ public abstract class User {
         this.nombre = nombre;
     }
 
+    
     public String getEmail() {
         return email;
     }
@@ -67,5 +75,21 @@ public abstract class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public double getMonedero() {
+        return monedero;
+    }
+
+    public void setMonedero(double monedero) {
+        this.monedero = monedero;
+    }
+
+    public Posicion getPosicionActual() {
+        return posicionActual;
+    }
+
+    public void setPosicionActual(Posicion posicionActual) {
+        this.posicionActual = posicionActual;
     }
 }

@@ -24,16 +24,16 @@ public class Driver extends User {
 
     // Constructor con todos los parámetros
     public Driver(Long id, String nombre, String email, String password, String licenciaConducir,
-            double calificacionMedia,  Long vehicleActiveId) {
-        super(id, nombre, email, password); // Inicializa los atributos del padre
+            double calificacionMedia,  Long vehicleActiveId, Posicion posicionActual) {
+        super(id, nombre, email, password, posicionActual); // Inicializa los atributos del padre
         this.licenciaConducir = licenciaConducir;
         this.calificacionMedia = calificacionMedia;
         this.vehicleActiveId = vehicleActiveId;
     }
 
     public Driver( String nombre, String email, String password, String licenciaConducir,
-            double calificacionMedia,  Long vehicleActiveId) {
-        super(nombre, email, password); // Inicializa los atributos del padre
+            double calificacionMedia,  Long vehicleActiveId, Posicion posicionActual) {
+        super(nombre, email, password, posicionActual); // Inicializa los atributos del padre
         this.licenciaConducir = licenciaConducir;
         this.calificacionMedia = calificacionMedia;
         this.vehicleActiveId = vehicleActiveId;

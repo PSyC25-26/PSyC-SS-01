@@ -1,7 +1,6 @@
 package deusto.sd.ubesto.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -11,10 +10,6 @@ import jakarta.persistence.Table;
 public class Passenger extends User {
     @Column(name = "metodoPago")
     private String metodoPago;
-    
-    @Embedded
-    @Column(name = "posicion_actual")
-    private Posicion posicionActual;
 
     // Constructor vacío
     public Passenger() {
@@ -22,18 +17,14 @@ public class Passenger extends User {
     }
 
     // Constructor con todos los parámetros
-    public Passenger(Long id, String nombre, String email, String password, String metodoPago, 
-        Posicion posicionActual) {
-        super(id, nombre, email, password);
+    public Passenger(Long id, String nombre, String email, String password, Posicion posicionActual, String metodoPago) {
+        super(id, nombre, email, password, posicionActual);
         this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual;
     }
 
-    public Passenger(String nombre, String email, String password, String metodoPago,
-        Posicion posicionActual) {
-        super(nombre, email, password);
+    public Passenger(String nombre, String email, String password, Posicion posicionActual, String metodoPago) {
+        super(nombre, email, password, posicionActual);
         this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual;
     }
 
     public void setMetodoPago(String metodoPago) {
@@ -42,18 +33,6 @@ public class Passenger extends User {
 
     public String getMetodoPago() {
         return metodoPago;
-    }
-
-    public Posicion getPosicionActual() {
-        return posicionActual;
-    }
-
-    public void setPosicionActual(Posicion posicionActual) {
-        this.posicionActual = posicionActual;
-    }
-
-    
-
-    
+    }    
 
 }

@@ -4,11 +4,12 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import deusto.sd.ubesto.dao.LoggedUserRepository;
 import deusto.sd.ubesto.dao.PassengerRepository;
-import deusto.sd.ubesto.dto.*;
+import deusto.sd.ubesto.dto.LoginDTO;
+import deusto.sd.ubesto.dto.PassengerDTO;
 import deusto.sd.ubesto.entity.LoggedUser;
 import deusto.sd.ubesto.entity.Passenger;
-import deusto.sd.ubesto.dao.LoggedUserRepository;
 
 @Service
 public class PassengerService {
@@ -26,8 +27,7 @@ public class PassengerService {
                 passengerDTO.setId(null);
             }
     
-            Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getMetodoPago(), 
-            passengerDTO.getPosicionActual());
+            Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getPosicionActual(), passengerDTO.getMetodoPago());
             Passenger savedPassenger = passengerRepository.save(newPassenger);
     
             passengerDTO.setId(savedPassenger.getId());

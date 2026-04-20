@@ -12,8 +12,8 @@ import deusto.sd.ubesto.entity.Driver;
 import deusto.sd.ubesto.entity.Passenger;
 import deusto.sd.ubesto.entity.Posicion;
 import deusto.sd.ubesto.entity.Trip;
-import deusto.sd.ubesto.entity.Vehicle;
 import deusto.sd.ubesto.entity.Trip.EstadoViaje;
+import deusto.sd.ubesto.entity.Vehicle;
 import deusto.sd.ubesto.entity.Vehicle.CategoriaVehiculo;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -58,6 +58,16 @@ public class TripService {
      * Un conductor acepta un viaje e inicia la simulación.
      */
     public Trip acceptTrip(Long tripId, Long driverId) {
+
+        // Comprobar si el conductor ya tiene un viaje activo (ACPETADO o EN_CURSO)
+        boolean isBusy = tripRepository.findAll().stream()
+            .anyMatch(t -> t.getConductor() != null && 
+                        t.getConductor().getId().equals(driverId) && 
+                        (t.getEstado() == EstadoViaje.ACEPTADO || t.getEstado() == EstadoViaje.EN_CURSO));
+
+        if (isBusy) {
+            throw new IllegalStateException("El conductor ya tiene un viaje en curso.");
+        }
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
 
@@ -96,12 +106,29 @@ public class TripService {
      * Actualiza el estado del viaje a FINALIZADO (llamado desde el hilo).
      */
     public void finishTrip(Long tripId) {
-        tripRepository.findById(tripId).ifPresent(trip -> {
-            trip.setEstado(EstadoViaje.FINALIZADO);
-            tripRepository.save(trip);
-        });
-    }
+    tripRepository.findById(tripId).ifPresent(trip -> {
+        trip.setEstado(EstadoViaje.FINALIZADO);
+        
+        double precio = trip.getPrecio();
+        Passenger p = trip.getCliente();
+        Driver d = trip.getConductor();
 
+        // 1. Transferencia de dinero
+        p.setMonedero(p.getMonedero() - precio);
+        d.setMonedero(d.getMonedero() + precio);
+
+        // 2. Actualización de posición al DESTINO
+        p.setPosicionActual(trip.getPosicionDestino());
+        d.setPosicionActual(trip.getPosicionDestino());
+
+        // 3. Persistencia
+        passengerRepository.save(p);
+        driverRepository.save(d);
+        tripRepository.save(trip);
+        
+        System.out.println("LOGICA: Viaje terminado. Pasajero y Conductor movidos al destino.");
+    });
+}
     private double calculatePrice(Posicion origin, Posicion destination, CategoriaVehiculo category) {
         final int R = 6371; // Radio de la Tierra en km
 

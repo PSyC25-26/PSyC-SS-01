@@ -30,7 +30,7 @@ public class DriverService {
             }
     
             Driver newDriver =  new Driver(driverDTO.getNombre(), driverDTO.getEmail(),driverDTO.getPassword(),driverDTO.getLicenciaConducir(),
-            driverDTO.getCalificacionMedia(),driverDTO.getVehicleActiveId());
+            driverDTO.getCalificacionMedia(),driverDTO.getVehicleActiveId(), driverDTO.getPosicionActual());
             
             Driver savedDrived = driverRepository.save(newDriver);
     
