@@ -3,54 +3,67 @@ import javax.swing.*;
 import java.awt.*;
 
 public class DashboardFrame extends JFrame {
-    public DashboardFrame(String rol, String email) {
-        setTitle("Dashboard - " + rol);
-        setSize(600, 400);
+    private String rol;
+    private String email;
+    private Long idUsuario;
+
+    public DashboardFrame(String rol, String email, Long idUsuario) {
+        this.rol = rol;
+        this.email = email;
+        this.idUsuario = idUsuario;
+
+        setTitle("Ubesto Dashboard - " + rol);
+        setSize(600, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JLabel lblBienvenida = new JLabel("Bienvenido, [" + rol + "] " + email);
-        lblBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Cabecera
+        JLabel lblBienvenida = new JLabel("Bienvenido, " + email + " (ID: " + idUsuario + ")");
+        lblBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
+        lblBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
         add(lblBienvenida, BorderLayout.NORTH);
 
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
-        Color colorBoton = new Color(100, 200, 100);
-        Dimension d = new Dimension(150, 180);
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 25));
+        Color verdeUbesto = new Color(100, 200, 100);
+        Dimension tamañoBoton = new Dimension(160, 180);
 
         if (rol.equals("PASAJERO")) {
-            JButton btnEditar = new JButton("Editar Datos");
-            JButton btnBuscar = new JButton("Solicitar Viaje");
-            JButton btnHistorial = new JButton("Ver historial");
-            
-            btnEditar.setBackground(colorBoton); btnBuscar.setBackground(colorBoton); btnHistorial.setBackground(colorBoton);
-            btnEditar.setPreferredSize(d); btnBuscar.setPreferredSize(d); btnHistorial.setPreferredSize(d);
-
-            // ACCIÓN: Solicitar Viaje
-            btnBuscar.addActionListener(e -> {
-                new VentanaSolicitarViaje(email).setVisible(true);
-                dispose(); // Cierra el dashboard
+            JButton btnSolicitar = crearBoton("Solicitar Viaje", verdeUbesto, tamañoBoton);
+            btnSolicitar.addActionListener(e -> {
+                new VentanaSolicitarViaje(email, idUsuario).setVisible(true);
+                dispose();
             });
-
-            panelBotones.add(btnEditar); panelBotones.add(btnBuscar); panelBotones.add(btnHistorial);
+            panelBotones.add(btnSolicitar);
+            panelBotones.add(crearBoton("Editar Perfil", verdeUbesto, tamañoBoton));
+            panelBotones.add(crearBoton("Ver Historial", verdeUbesto, tamañoBoton));
 
         } else if (rol.equals("CONDUCTOR")) {
-            JButton btnEditar = new JButton("Editar Datos");
-            JButton btnVehiculo = new JButton("Añadir Vehículo");
-            JButton btnViaje = new JButton("Realizar Viaje");
-            
-            btnEditar.setBackground(colorBoton); btnVehiculo.setBackground(colorBoton); btnViaje.setBackground(colorBoton);
-            btnEditar.setPreferredSize(d); btnVehiculo.setPreferredSize(d); btnViaje.setPreferredSize(d);
-
-            // ACCIÓN: Añadir Vehículo
+            JButton btnVehiculo = crearBoton("Añadir Vehículo", verdeUbesto, tamañoBoton);
             btnVehiculo.addActionListener(e -> {
-                new VentanaAñadirVehiculo(email).setVisible(true);
-                dispose(); // Cierra el dashboard
+                new VentanaAñadirVehiculo(email, idUsuario).setVisible(true);
+                dispose();
             });
 
-            panelBotones.add(btnEditar); panelBotones.add(btnVehiculo); panelBotones.add(btnViaje);
+            JButton btnAceptar = crearBoton("Realizar Viaje", verdeUbesto, tamañoBoton);
+            btnAceptar.addActionListener(e -> {
+                new VentanaRealizarViaje(idUsuario).setVisible(true);
+                dispose();
+            });
+
+            panelBotones.add(btnVehiculo);
+            panelBotones.add(btnAceptar);
+            panelBotones.add(crearBoton("Editar Conductor", verdeUbesto, tamañoBoton));
         }
-        
+
         add(panelBotones, BorderLayout.CENTER);
+    }
+
+    private JButton crearBoton(String texto, Color color, Dimension d) {
+        JButton btn = new JButton(texto);
+        btn.setBackground(color);
+        btn.setPreferredSize(d);
+        btn.setFocusable(false);
+        return btn;
     }
 }
