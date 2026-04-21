@@ -56,5 +56,9 @@ public class DriverController {
         }
     }
 
+    @PutMapping("/update/{id}") 
+    public ResponseEntity<?> updateDriver(@PathVariable Long id, @RequestBody DriverDTO driverDTO) {
+        return ResponseEntity.ok("Datos actualizados");
+    }
  
 }

@@ -54,6 +54,12 @@ public class DashboardFrame extends JFrame {
         } else if (rol.equals("CONDUCTOR")) {
             JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
             JButton btnEditar = new JButton("Editar Datos");
+            btnEditar.setBackground(colorBoton);
+            btnEditar.setPreferredSize(d);
+            btnEditar.addActionListener(e -> {
+                new VentanaEditarConductor(email, idUsuario).setVisible(true);
+                dispose();
+            });
             JButton btnVehiculo = new JButton("Añadir Vehículo");
             JButton btnViaje = new JButton("Realizar Viaje");
             
