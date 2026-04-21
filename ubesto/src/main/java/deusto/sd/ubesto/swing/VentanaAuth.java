@@ -79,7 +79,6 @@ public class VentanaAuth extends JFrame {
                 String url;
                 String jsonBody;
 
-                // Apuntamos al puerto 8080 que es donde está tu Spring Boot
                 if (rol.equals("PASAJERO")) {
                     url = "http://localhost:8080/passengers/registerPassenger"; //
                     jsonBody = String.format(
@@ -103,8 +102,7 @@ public class VentanaAuth extends JFrame {
                         .build();
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-                // Tu PassengerController devuelve 201 CREATED
+                
                 if (response.statusCode() == 201) { 
                     JOptionPane.showMessageDialog(this, "Registro exitoso en la Base de Datos.");
                 } else {
@@ -123,48 +121,48 @@ public class VentanaAuth extends JFrame {
                 String email = txtLogEmail.getText();
                 String pass = new String(txtLogPass.getPassword());
                 
-                // Apuntamos al puerto 8080
                 String url = rol.equals("PASAJERO") ? 
-                    "http://localhost:8080/passengers/loginPassenger" : //
-                    "http://localhost:8080/drivers/loginDriver"; //
-
-                String jsonBody = String.format("{\"email\":\"%s\", \"password\":\"%s\"}", email, pass); //
-
+                    "http://localhost:8080/passengers/loginPassenger" : 
+                    "http://localhost:8080/drivers/loginDriver";
+        
+                String jsonBody = String.format("{\"email\":\"%s\", \"password\":\"%s\"}", email, pass);
+        
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();
-
+        
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+        
                 if (response.statusCode() == 200 || response.statusCode() == 202) { 
-                    String respuestaBackend = response.body();
-                    
-                    if(respuestaBackend.contains("correctamente!")) { //
-                        JOptionPane.showMessageDialog(this, respuestaBackend);
-                        new DashboardFrame(rol, email).setVisible(true);
+                    try {
+                        // El body ahora debe contener el ID numérico
+                        Long idUsuario = Long.parseLong(response.body().trim());
+                        
+                        JOptionPane.showMessageDialog(this, "¡Login correcto! ID: " + idUsuario);
+                        
+                        // PASAMOS EL ID AL DASHBOARD
+                        new DashboardFrame(rol, email, idUsuario).setVisible(true);
                         dispose(); 
-                    } else {
-                        JOptionPane.showMessageDialog(this, respuestaBackend, "Aviso de Login", JOptionPane.WARNING_MESSAGE);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(this, "Error interno: El servidor no devolvió un ID numérico.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(this, "Error en credenciales o servidor.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Error: " + response.body(), "Login Fallido", JOptionPane.ERROR_MESSAGE);
                 }
-
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error de conexión con el servidor Spring Boot.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error de conexión.");
             }
         });
 
         btnAtras.addActionListener(e ->{
             try {
-                new VentanaPrincipal().setVisible(true);;
+                new VentanaPrincipal().setVisible(true);
                 dispose();
             } catch (Exception ex) {
-                // TODO: handle exception
                 ex.printStackTrace();
             }
         });

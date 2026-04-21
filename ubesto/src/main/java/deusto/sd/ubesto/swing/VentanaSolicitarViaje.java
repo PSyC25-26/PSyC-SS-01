@@ -7,51 +7,70 @@ import java.net.http.*;
 import deusto.sd.ubesto.entity.Vehicle.CategoriaVehiculo;
 
 public class VentanaSolicitarViaje extends JFrame {
-    public VentanaSolicitarViaje(String email, Long idPasajero) {
-        setTitle("Solicitar Nuevo Viaje");
-        setSize(400, 450);
+    
+    public VentanaSolicitarViaje(String emailPasajero, Long idPasajero) {
+        setTitle("Solicitar Viaje");
+        setSize(450, 400);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(6, 2, 10, 15));
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        JTextField tLatO = new JTextField("0.0"); JTextField tLonO = new JTextField("0.0");
-        JTextField tLatD = new JTextField("1.0"); JTextField tLonD = new JTextField("1.0");
-        JComboBox<CategoriaVehiculo> comboCat = new JComboBox<>(CategoriaVehiculo.values());
+        JPanel panelForm = new JPanel(new GridLayout(7, 2, 10, 10));
+        panelForm.setBorder(BorderFactory.createTitledBorder("Introduce las coordenadas"));
 
-        add(new JLabel(" Latitud Origen:")); add(tLatO);
-        add(new JLabel(" Longitud Origen:")); add(tLonO);
-        add(new JLabel(" Latitud Destino:")); add(tLatD);
-        add(new JLabel(" Longitud Destino:")); add(tLonD);
-        add(new JLabel(" Tipo de Uber:")); add(comboCat);
+        JTextField txtLatOrigen = new JTextField("0.0"); 
+        JTextField txtLonOrigen = new JTextField("0.0");
+        JTextField txtLatDestino = new JTextField("1.0"); 
+        JTextField txtLonDestino = new JTextField("1.0");
+        JComboBox<CategoriaVehiculo> cbCategoria = new JComboBox<>(CategoriaVehiculo.values());
 
-        JButton btnVolver = new JButton("Cancelar");
-        JButton btnPedir = new JButton("PEDIR UBER");
-        btnPedir.setBackground(new Color(100, 200, 100));
+        panelForm.add(new JLabel("Latitud Origen:")); panelForm.add(txtLatOrigen);
+        panelForm.add(new JLabel("Longitud Origen:")); panelForm.add(txtLonOrigen);
+        panelForm.add(new JLabel("Latitud Destino:")); panelForm.add(txtLatDestino);
+        panelForm.add(new JLabel("Longitud Destino:")); panelForm.add(txtLonDestino);
+        panelForm.add(new JLabel("Categoría Deseada:")); panelForm.add(cbCategoria);
 
-        add(btnVolver); add(btnPedir);
+        JButton btnSolicitar = new JButton("Solicitar Uber");
+        btnSolicitar.setBackground(new Color(100, 200, 100));
+        JButton btnVolver = new JButton("Volver");
 
-        btnPedir.addActionListener(e -> {
+        panelForm.add(btnVolver); panelForm.add(btnSolicitar);
+        add(panelForm, BorderLayout.CENTER);
+
+        // EVENTO: VOLVER
+        btnVolver.addActionListener(e -> {
+            new DashboardFrame("PASAJERO", emailPasajero, idPasajero).setVisible(true);
+            dispose();
+        });
+
+        // EVENTO: SOLICITAR VIAJE
+        btnSolicitar.addActionListener(e -> {
             try {
-                String url = "http://localhost:8080/trips/request";
-                String body = String.format(
-                    "{\"passengerId\":%d, \"origen\":{\"latitud\":%s, \"longitud\":%s}, \"destino\":{\"latitud\":%s, \"longitud\":%s}, \"categoria\":\"%s\"}",
-                    idPasajero, tLatO.getText(), tLonO.getText(), tLatD.getText(), tLonD.getText(), comboCat.getSelectedItem()
+                String url = "http://localhost:8080/trips/request"; 
+                String jsonBody = String.format(
+                    "{\"passengerId\":%d, \"origen\":{\"latitud\":%s, \"longitud\":%s}, \"destino\":{\"latitud\":%s, \"longitud\":%s}, \"categoria\":\"%s\"}", 
+                    idPasajero, txtLatOrigen.getText(), txtLonOrigen.getText(), txtLatDestino.getText(), txtLonDestino.getText(), cbCategoria.getSelectedItem().toString()
                 );
 
                 HttpClient client = HttpClient.newHttpClient();
-                HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(body)).build();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                        .build();
+                        
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-
-                if (res.statusCode() == 201) {
-                    JOptionPane.showMessageDialog(this, "Viaje solicitado. Buscando conductor...");
-                    new DashboardFrame("PASAJERO", email, idPasajero).setVisible(true);
-                    dispose();
+                if (response.statusCode() == 201) {
+                    JOptionPane.showMessageDialog(this, "¡Viaje solicitado con éxito!");
+                    btnVolver.doClick(); // Volvemos automáticamente al dashboard
                 } else {
-                    JOptionPane.showMessageDialog(this, "Error al solicitar: " + res.body());
+                    JOptionPane.showMessageDialog(this, "Error al solicitar el viaje.\n" + response.body(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (Exception ex) { ex.printStackTrace(); }
+            } catch (Exception ex) { 
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error de conexión con el servidor.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 }

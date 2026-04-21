@@ -44,22 +44,21 @@ public class DriverService {
         }
     }
 
-    public boolean loginDriver(LoginDTO loginDTO){
+    public Long loginDriver(LoginDTO loginDTO){
         try {
             boolean correcto = verificarPassword(loginDTO);
             if(correcto){
+                Driver driver = driverRepository.findByEmail(loginDTO.getEmail()).get();
                 UUID token = UUID.randomUUID();
-                Driver driver=driverRepository.findByEmail(loginDTO.getEmail()).get();
                 LoggedUser loggedUser = new LoggedUser("DRIVER", driver.getId(), token.toString());
-
                 loggedUserRepository.save(loggedUser);
-                return true;
-            }else{
-                return false;
+                
+                return driver.getId(); // Devolvemos el ID
             }
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

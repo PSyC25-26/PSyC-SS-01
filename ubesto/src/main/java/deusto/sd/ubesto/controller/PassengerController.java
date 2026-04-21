@@ -37,20 +37,16 @@ public class PassengerController {
     }
 
     @PostMapping("/loginPassenger")
-    public ResponseEntity<String> loginPassenger(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> loginPassenger(@RequestBody LoginDTO loginDTO) {
         try {
-            boolean loginCorrecto = passengerService.loginPassenger(loginDTO);
-            if(loginCorrecto){
-                return  new ResponseEntity<>(loginDTO.getEmail() +" ha iniciado sesión correctamente!",
-                HttpStatus.ACCEPTED);
-            }else{
-                return new ResponseEntity<>("Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo",
-                    HttpStatus.NOT_ACCEPTABLE);
+            Long idPassenger = passengerService.loginPassenger(loginDTO);
+            if(idPassenger != null){
+                return ResponseEntity.ok(idPassenger); // Devuelve HTTP 200 con el ID
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email o password incorrectos.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("Ha habido un fallo en el inicio de sesión. Revise el error y vuelva a intentarlo.",
-                HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fallo en el servidor.");
         }
     }
     

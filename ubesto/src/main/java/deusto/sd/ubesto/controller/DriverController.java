@@ -43,17 +43,16 @@ public class DriverController {
     }
 
     @PostMapping("/loginDriver")
-    public String loginDriver(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> loginDriver(@RequestBody LoginDTO loginDTO) {
         try {
-            boolean loginCorrecto = driverService.loginDriver(loginDTO);
-            if(loginCorrecto==true){
-                return loginDTO.getEmail() +" ha iniciado sesión correctamente!";
-            }else{
-                return "Ha habido un error en el inicio de sesión. Revise los datos y vuelva a intentarlo.";
+            Long idDriver = driverService.loginDriver(loginDTO);
+            if(idDriver != null){
+                return ResponseEntity.ok(idDriver); // Devuelve HTTP 200 con el ID
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email o password incorrectos.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Ha habido un fallo en el inicio de sesión. Revise el error y vuelva a intentarlo.";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fallo en el servidor.");
         }
     }
 

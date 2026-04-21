@@ -6,7 +6,8 @@ import java.net.URI;
 import java.net.http.*;
 
 public class VentanaRealizarViaje extends JFrame {
-    public VentanaRealizarViaje(Long idConductor) {
+    
+    public VentanaRealizarViaje(Long idConductor, String email) {
         setTitle("Panel de Conducción");
         setSize(350, 250);
         setLocationRelativeTo(null);
@@ -15,11 +16,20 @@ public class VentanaRealizarViaje extends JFrame {
         add(new JLabel("ID del Viaje solicitado:"));
         JTextField txtTripId = new JTextField(10);
         add(txtTripId);
-
+        JButton btnVolver = new JButton("Volver");
         JButton btnAceptar = new JButton("ACEPTAR Y EMPEZAR");
         btnAceptar.setBackground(new Color(100, 200, 100));
+        
+        add(btnVolver);
         add(btnAceptar);
 
+        // EVENTO: VOLVER
+        btnVolver.addActionListener(e -> {
+            new DashboardFrame("CONDUCTOR", email, idConductor).setVisible(true);
+            dispose();
+        });
+
+        // EVENTO: ACEPTAR VIAJE
         btnAceptar.addActionListener(e -> {
             try {
                 String tripId = txtTripId.getText();
@@ -36,7 +46,10 @@ public class VentanaRealizarViaje extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(this, "No se pudo aceptar el viaje: " + res.body());
                 }
-            } catch (Exception ex) { ex.printStackTrace(); }
+            } catch (Exception ex) { 
+                ex.printStackTrace(); 
+                JOptionPane.showMessageDialog(this, "Error de conexión.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 }

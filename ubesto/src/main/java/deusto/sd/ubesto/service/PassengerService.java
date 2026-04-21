@@ -40,22 +40,21 @@ public class PassengerService {
         }
     }
 
-    public boolean loginPassenger(LoginDTO loginDTO){
+    public Long loginPassenger(LoginDTO loginDTO){
         try {
             boolean correcto = verificarPassword(loginDTO);
             if(correcto){
-                UUID token = UUID.randomUUID();
                 Passenger passenger = passengerRepository.findByEmail(loginDTO.getEmail()).get();
+                UUID token = UUID.randomUUID();
                 LoggedUser loggedUser = new LoggedUser("PASSENGER", passenger.getId(), token.toString());
-
                 loggedUserRepository.save(loggedUser);
-                return true;
-            }else{
-                return false;
+                
+                return passenger.getId(); // Devolvemos el ID
             }
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
