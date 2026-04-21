@@ -14,32 +14,43 @@ public class DashboardFrame extends JFrame {
         lblBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(lblBienvenida, BorderLayout.NORTH);
 
-        String verbo="";
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
+        Color colorBoton = new Color(100, 200, 100);
+        Dimension d = new Dimension(150, 180);
 
-        // Si es pasajero, añadimos los botones del boceto
         if (rol.equals("PASAJERO")) {
-            JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
-            verbo="Solicitar";
             JButton btnEditar = new JButton("Editar Datos");
-            JButton btnBuscar = new JButton(verbo + " Viaje");
-            JButton btnHistorial = new JButton("Ver historial de viajes");
+            JButton btnBuscar = new JButton("Solicitar Viaje");
+            JButton btnHistorial = new JButton("Ver historial");
             
-            Color colorBoton = new Color(100, 200, 100);
-            btnEditar.setBackground(colorBoton);
-            btnBuscar.setBackground(colorBoton);
-            btnHistorial.setBackground(colorBoton);
-            
-            // Hacer los botones un poco más grandes
-            Dimension d = new Dimension(150, 180);
-            btnEditar.setPreferredSize(d);
-            btnBuscar.setPreferredSize(d);
-            btnHistorial.setPreferredSize(d);
+            btnEditar.setBackground(colorBoton); btnBuscar.setBackground(colorBoton); btnHistorial.setBackground(colorBoton);
+            btnEditar.setPreferredSize(d); btnBuscar.setPreferredSize(d); btnHistorial.setPreferredSize(d);
 
-            panelBotones.add(btnEditar);
-            panelBotones.add(btnBuscar);
-            panelBotones.add(btnHistorial);
+            // ACCIÓN: Solicitar Viaje
+            btnBuscar.addActionListener(e -> {
+                new VentanaSolicitarViaje(email).setVisible(true);
+                dispose(); // Cierra el dashboard
+            });
+
+            panelBotones.add(btnEditar); panelBotones.add(btnBuscar); panelBotones.add(btnHistorial);
+
+        } else if (rol.equals("CONDUCTOR")) {
+            JButton btnEditar = new JButton("Editar Datos");
+            JButton btnVehiculo = new JButton("Añadir Vehículo");
+            JButton btnViaje = new JButton("Realizar Viaje");
             
-            add(panelBotones, BorderLayout.CENTER);
+            btnEditar.setBackground(colorBoton); btnVehiculo.setBackground(colorBoton); btnViaje.setBackground(colorBoton);
+            btnEditar.setPreferredSize(d); btnVehiculo.setPreferredSize(d); btnViaje.setPreferredSize(d);
+
+            // ACCIÓN: Añadir Vehículo
+            btnVehiculo.addActionListener(e -> {
+                new VentanaAñadirVehiculo(email).setVisible(true);
+                dispose(); // Cierra el dashboard
+            });
+
+            panelBotones.add(btnEditar); panelBotones.add(btnVehiculo); panelBotones.add(btnViaje);
         }
+        
+        add(panelBotones, BorderLayout.CENTER);
     }
 }
