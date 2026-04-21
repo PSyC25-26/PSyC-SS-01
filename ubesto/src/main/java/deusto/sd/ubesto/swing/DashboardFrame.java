@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class DashboardFrame extends JFrame {
-    
+    final Color colorBoton = new Color(100, 200, 100);
+    final Dimension d = new Dimension(150, 180);
+
     // CORRECCIÓN 1: Añadimos Long idUsuario al constructor
     public DashboardFrame(String rol, String email, Long idUsuario) {
         setTitle("Dashboard - " + rol);
@@ -28,13 +30,10 @@ public class DashboardFrame extends JFrame {
             JButton btnBuscar = new JButton(verbo + " Viaje");
             JButton btnHistorial = new JButton("Ver historial de viajes");
             
-            Color colorBoton = new Color(100, 200, 100);
             btnEditar.setBackground(colorBoton);
             btnBuscar.setBackground(colorBoton);
             btnHistorial.setBackground(colorBoton);
             
-            // Hacer los botones un poco más grandes
-            Dimension d = new Dimension(150, 180);
             btnEditar.setPreferredSize(d);
             btnBuscar.setPreferredSize(d);
             btnHistorial.setPreferredSize(d);
@@ -48,7 +47,7 @@ public class DashboardFrame extends JFrame {
             panelBotones.add(btnEditar);
             panelBotones.add(btnBuscar);
             panelBotones.add(btnHistorial);
-            
+
             add(panelBotones, BorderLayout.CENTER);
             
         } else if (rol.equals("CONDUCTOR")) {
@@ -68,7 +67,6 @@ public class DashboardFrame extends JFrame {
             btnVehiculo.setBackground(colorBoton);
             btnViaje.setBackground(colorBoton);
             
-            Dimension d = new Dimension(150, 180);
             btnEditar.setPreferredSize(d);
             btnVehiculo.setPreferredSize(d);
             btnViaje.setPreferredSize(d);
@@ -91,5 +89,11 @@ public class DashboardFrame extends JFrame {
             
             add(panelBotones, BorderLayout.CENTER);
         }
+
+        JPanel panelAtras = new JPanel(new BorderLayout());
+        JButton btonAtras = new JButton("Cerrar sesión"); //FALTA FOR CONFIGURAR
+
+        add(panelAtras,BorderLayout.SOUTH);
+        panelAtras.add(btonAtras,BorderLayout.WEST);
     }
 }
