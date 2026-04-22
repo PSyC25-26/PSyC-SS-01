@@ -38,7 +38,11 @@ public class DashboardFrame extends JFrame {
             btnBuscar.setPreferredSize(d);
             btnHistorial.setPreferredSize(d);
 
-            // CORRECCIÓN 3: Pasamos el email y el idUsuario a la nueva ventana
+            btnEditar.addActionListener(e -> {
+                new VentanaEditarPasajero(email, idUsuario).setVisible(true);
+                dispose();
+            });
+
             btnBuscar.addActionListener(e -> {
                 new VentanaSolicitarViaje(email, idUsuario).setVisible(true);
                 dispose(); 
@@ -71,13 +75,11 @@ public class DashboardFrame extends JFrame {
             btnVehiculo.setPreferredSize(d);
             btnViaje.setPreferredSize(d);
 
-            // CORRECCIÓN 4: Pasamos el email y el idUsuario
             btnVehiculo.addActionListener(e -> {
                 new VentanaAñadirVehiculo(email, idUsuario).setVisible(true);
                 dispose();
             });
             
-            // CORRECCIÓN 5: Pasamos el idUsuario y el email
             btnViaje.addActionListener(e -> {
                 new VentanaRealizarViaje(idUsuario, email).setVisible(true);
                 dispose();
@@ -91,7 +93,12 @@ public class DashboardFrame extends JFrame {
         }
 
         JPanel panelAtras = new JPanel(new BorderLayout());
-        JButton btonAtras = new JButton("Cerrar sesión"); //FALTA FOR CONFIGURAR
+        JButton btonAtras = new JButton("Cerrar sesión");
+
+        btonAtras.addActionListener(e -> {
+            new VentanaPrincipal().setVisible(true);
+            dispose();
+        });
 
         add(panelAtras,BorderLayout.SOUTH);
         panelAtras.add(btonAtras,BorderLayout.WEST);

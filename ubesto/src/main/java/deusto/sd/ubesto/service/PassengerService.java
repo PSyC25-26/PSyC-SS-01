@@ -67,5 +67,26 @@ public class PassengerService {
         }
     }
 
+    public PassengerDTO updatePassenger(Long id, PassengerDTO passengerDTO) {
+        try {
+            Passenger passenger = passengerRepository.findById(id).orElse(null);
+            if (passenger == null) return null;
+
+            if (passengerDTO.getNombre() != null && !passengerDTO.getNombre().isBlank())
+                passenger.setNombre(passengerDTO.getNombre());
+
+            if (passengerDTO.getPassword() != null && !passengerDTO.getPassword().isBlank())
+                passenger.setPassword(passengerDTO.getPassword());
+
+            if (passengerDTO.getMetodoPago() != null && !passengerDTO.getMetodoPago().isBlank())
+                passenger.setMetodoPago(passengerDTO.getMetodoPago());
+
+            passengerRepository.save(passenger);
+            return passengerDTO;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     
 }

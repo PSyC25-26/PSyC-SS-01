@@ -70,4 +70,26 @@ public class DriverService {
             return false;
         }
     }
+
+    public DriverDTO updateDriver(Long id, DriverDTO driverDTO) {
+        try {
+            Driver driver = driverRepository.findById(id).orElse(null);
+            if (driver == null) return null;
+
+            if (driverDTO.getNombre() != null && !driverDTO.getNombre().isBlank())
+                driver.setNombre(driverDTO.getNombre());
+
+            if (driverDTO.getPassword() != null && !driverDTO.getPassword().isBlank())
+                driver.setPassword(driverDTO.getPassword());
+
+            if (driverDTO.getLicenciaConducir() != null && !driverDTO.getLicenciaConducir().isBlank())
+                driver.setLicenciaConducir(driverDTO.getLicenciaConducir());
+
+            driverRepository.save(driver);
+            return driverDTO;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

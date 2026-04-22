@@ -58,9 +58,14 @@ public class DriverController {
         }
     }
 
-    @PutMapping("/update/{id}") 
+    @PutMapping("/update/{id}")
     public ResponseEntity<?> updateDriver(@PathVariable Long id, @RequestBody DriverDTO driverDTO) {
-        return ResponseEntity.ok("Datos actualizados");
+        DriverDTO updated = driverService.updateDriver(id, driverDTO);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Conductor no encontrado.");
+        }
     }
  
 }
