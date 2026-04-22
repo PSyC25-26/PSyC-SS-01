@@ -78,8 +78,11 @@ public class TripService {
         Driver driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new EntityNotFoundException("Driver not found with id: " + driverId));
         
+        if (driver.getVehicleActiveId() == null) {
+            throw new EntityNotFoundException("El conductor " + driverId + " no tiene ningún vehículo activo asignado.");
+        }
         Vehicle activeVehicle = vehicleRepository.findById(driver.getVehicleActiveId())
-                .orElseThrow(() -> new EntityNotFoundException("Vehículo activo no encontrado para el conductor: " + driverId));
+        .orElseThrow(() -> new EntityNotFoundException("Vehículo activo no encontrado para el conductor: " + driverId));
 
         trip.setConductor(driver);
         trip.setVehiculo(activeVehicle);
