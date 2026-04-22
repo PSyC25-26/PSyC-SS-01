@@ -1,6 +1,3 @@
-Python
-markdown_content = """# PSyC-SS-01
-
 # 📝 UBESTO - Sistema de Gestión de Movilidad
 
 UBESTO es una plataforma backend desarrollada con **Spring Boot** que gestiona un ecosistema de transporte bajo demanda. El sistema implementa una arquitectura por capas para administrar conductores, pasajeros y vehículos, incluyendo un motor de simulación de trayectos en tiempo real y un cliente pesado nativo.
@@ -13,7 +10,7 @@ Se ha completado la integración total entre el **Frontend (Java Swing)** y el *
 * **Gestión de Sesión por IDs:** Se ha modificado el sistema de autenticación. Ahora, tras un login exitoso, el backend devuelve el `ID` numérico del usuario. Este ID es capturado por Swing y propagado dinámicamente a todas las ventanas de acción para mantener el contexto del usuario.
 * **Dashboards Basados en Roles:** Menús dinámicos (`DashboardFrame`) que adaptan sus opciones dependiendo de si el usuario logueado es `PASAJERO` o `CONDUCTOR`.
 * **Flujo de Conductor:** Implementación de pantallas para añadir vehículos (`VentanaAñadirVehiculo`), aceptar viajes por ID (`VentanaRealizarViaje`) y editar el perfil (`VentanaEditarConductor`).
-* **Flujo de Pasajero:** Pantalla interactiva para la solicitud de viajes especificando origen, destino y categoría del vehículo (`VentanaSolicitarViaje`).
+* **Flujo de Pasajero:** Pantalla interactiva para la solicitud de viajes especificando origen, destino y categoría del vehículo (`VentanaSolicitarViaje`) y editar el perfil (`VentanaEditarPasajero`).
 
 ---
 
@@ -68,5 +65,3 @@ Para auditar los saldos y estados de los viajes en tiempo real:
 3.  **Usuario:** `db-user` | **Password:** `db-password`
 
 ---
-
-## 📂 Estructura del Proyecto
