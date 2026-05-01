@@ -105,6 +105,27 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+
+		<plugin>
+			<groupId>org.jacoco</groupId>
+			<artifactId>jacoco-maven-plugin</artifactId>
+			<version>0.8.12</version> <!-- O la versión estable más reciente -->
+			<executions>
+				<execution>
+					<goals>
+						<goal>prepare-agent</goal>
+					</goals>
+				</execution>
+				<!-- Adjunta el goal 'report' a la fase 'verify' del ciclo de vida de Maven -->
+				<execution>
+					<id>report</id>
+					<phase>verify</phase>
+					<goals>
+						<goal>report</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
 	</build>
 
 </project>
