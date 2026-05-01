@@ -174,29 +174,28 @@ public class IntegrationTest {
         assertTrue(driverRepository.findById(id).isPresent());
     }
 
-    // @Test
-    // @DisplayName("[I-06] POST /drivers/loginDriver → 200 con credenciales correctas")
-    // void i06_loginConductor_correcto_devuelve200() throws Exception {
-    //     mockMvc.perform(post("/drivers/registerDriver")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("""
-    //                 {
-    //                   "nombre": "Login Driver",
-    //                   "email": "logindriver@test.com",
-    //                   "password": "driverpass",
-    //                   "licenciaConducir": "LIC-999",
-    //                   "calificacionMedia": 5.0,
-    //                   "posicionActual": {"latitud": 0.0, "longitud": 0.0}
-    //                 }
-    //                 """))
-    //         .andExpect(status().isCreated());
+    @Test
+    @DisplayName("[I-06] POST /drivers/loginDriver → 200 con credenciales correctas")
+    void i06_loginConductor_correcto_devuelve200() throws Exception {
+        mockMvc.perform(post("/drivers/registerDriver")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "nombre": "Login Driver",
+                      "email": "logindriver@test.com",
+                      "password": "driverpass",
+                      "licenciaConducir": "LIC-999",
+                      "calificacionMedia": 5.0,
+                      "posicionActual": {"latitud": 0.0, "longitud": 0.0}
+                    }
+                    """))
+            .andExpect(status().isCreated());
 
-    //     mockMvc.perform(post("/drivers/loginDriver")
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .content("{\"email\":\"logindriver@test.com\", \"password\":\"driverpass\"}"))
-    //         .andExpect(status().isOk())
-    //         .andExpect(content().string(org.hamcrest.Matchers.matchesPattern("\\d+")));
-    // }
+        mockMvc.perform(post("/drivers/loginDriver")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"logindriver@test.com\", \"password\":\"driverpass\"}"))
+            .andExpect(status().isOk());
+    }
 
     // =========================================================
     // Trips

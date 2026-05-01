@@ -1,6 +1,8 @@
 package deusto.sd.ubesto.swing;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+
 import java.awt.*;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,6 +11,10 @@ import java.net.http.HttpResponse;
 
 public class VentanaAuth extends JFrame {
     private String rol;
+    final Color verdeFondo = new Color(224, 250, 228);
+    final LineBorder bordeBerde = new LineBorder(new Color(47,158,68),2,true);
+    final Color verdeBoton =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
+    final Font fontBotones = new Font("SansSerif", Font.BOLD, 12);
 
     public VentanaAuth(String rol) {
         this.rol = rol;
@@ -18,9 +24,11 @@ public class VentanaAuth extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         // setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         setLayout(new BorderLayout());
+        setBackground(verdeFondo);
 
         JPanel panelMain = new JPanel();
         panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));
+        panelMain.setBackground(verdeFondo);
 
         // --- SECCIÓN REGISTRO ---
         JPanel panelRegistro = new JPanel(new GridLayout(0, 2, 5, 5));
@@ -33,6 +41,7 @@ public class VentanaAuth extends JFrame {
         panelRegistro.add(new JLabel("User name:")); panelRegistro.add(txtRegNombre);
         panelRegistro.add(new JLabel("Email:")); panelRegistro.add(txtRegEmail);
         panelRegistro.add(new JLabel("Password:")); panelRegistro.add(txtRegPass);
+        panelRegistro.setBackground(verdeFondo);
         
         // Campos extra para conductor
         JTextField txtLicencia = new JTextField();
@@ -41,7 +50,11 @@ public class VentanaAuth extends JFrame {
         }
 
         JButton btnRegister = new JButton("REGISTER");
-        btnRegister.setBackground(new Color(100, 200, 100));
+        btnRegister.setBackground(verdeBoton);
+        btnRegister.setForeground(Color.white);
+        btnRegister.setFont(fontBotones);
+        btnRegister.setBorder(bordeBerde);
+
         panelRegistro.add(new JLabel("")); 
         panelRegistro.add(btnRegister);
 
@@ -59,6 +72,12 @@ public class VentanaAuth extends JFrame {
         btnLogin.setBackground(new Color(100, 200, 100));
         panelLogin.add(new JLabel("")); 
         panelLogin.add(btnLogin);
+        panelLogin.setBackground(verdeFondo);
+        
+        btnLogin.setBackground(verdeBoton);
+        btnLogin.setForeground(Color.white);
+        btnLogin.setFont(fontBotones);
+        btnLogin.setBorder(bordeBerde);
 
         // --- SECCIÓN ATRAS ---
         JPanel panelAtras = new JPanel();
@@ -66,6 +85,7 @@ public class VentanaAuth extends JFrame {
         panelAtras.setLayout(new BorderLayout());
 
         panelAtras.add(btnAtras,BorderLayout.WEST);
+        panelAtras.setBackground(verdeFondo);
 
         // --- EVENTOS ---
         
@@ -79,34 +99,41 @@ public class VentanaAuth extends JFrame {
                 String url;
                 String jsonBody;
 
-                if (rol.equals("PASAJERO")) {
-                    url = "http://localhost:8080/passengers/registerPassenger"; //
-                    jsonBody = String.format(
-                        "{\"nombre\":\"%s\", \"email\":\"%s\", \"password\":\"%s\", \"metodoPago\":\"efectivo\", \"posicionActual\":{\"latitud\":0.0, \"longitud\":0.0}}", 
-                        nombre, email, pass
-                    ); //
-                } else {
-                    url = "http://localhost:8080/drivers/registerDriver"; //
-                    String licencia = txtLicencia.getText();
-                    jsonBody = String.format(
-                        "{\"nombre\":\"%s\", \"email\":\"%s\", \"password\":\"%s\", \"licenciaConducir\":\"%s\", \"calificacionMedia\":5.0, \"disponible\":true}", 
-                        nombre, email, pass, licencia
-                    ); //
-                }
-
-                HttpClient client = HttpClient.newHttpClient();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                        .build();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if(nombre.equals("") || email.equals("")  || pass.equals("")){
+                    JOptionPane.showMessageDialog(this, "Error al registrar. Debe rellenar todos los campos.", "Error", JOptionPane.INFORMATION_MESSAGE);
                 
-                if (response.statusCode() == 201) { 
-                    JOptionPane.showMessageDialog(this, "Registro exitoso en la Base de Datos.");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Error al registrar (Código " + response.statusCode() + ").\n" + response.body(), "Error", JOptionPane.ERROR_MESSAGE);
+                }else{
+                    if (rol.equals("PASAJERO")) {
+                        url = "http://localhost:8080/passengers/registerPassenger"; //
+                        jsonBody = String.format(
+                            "{\"nombre\":\"%s\", \"email\":\"%s\", \"password\":\"%s\", \"metodoPago\":\"efectivo\", \"posicionActual\":{\"latitud\":0.0, \"longitud\":0.0}}", 
+                            nombre, email, pass
+                        ); //
+                    } else {
+                        url = "http://localhost:8080/drivers/registerDriver"; //
+                        String licencia = txtLicencia.getText();
+                        jsonBody = String.format(
+                            "{\"nombre\":\"%s\", \"email\":\"%s\", \"password\":\"%s\", \"licenciaConducir\":\"%s\", \"calificacionMedia\":5.0, \"disponible\":true}", 
+                            nombre, email, pass, licencia
+                        ); //
+                    }
+
+                    HttpClient client = HttpClient.newHttpClient();
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(url))
+                            .header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                            .build();
+
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    
+                    if (response.statusCode() == 201) { 
+                        JOptionPane.showMessageDialog(this, "Registro exitoso en la Base de Datos.");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Error al registrar (Código " + response.statusCode() + ").\n" + response.body(), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                
+                    
                 }
 
             } catch (Exception ex) {

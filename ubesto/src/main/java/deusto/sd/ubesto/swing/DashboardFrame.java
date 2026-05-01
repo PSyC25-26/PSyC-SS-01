@@ -1,11 +1,16 @@
 package deusto.sd.ubesto.swing;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+
 import java.awt.*;
 
 public class DashboardFrame extends JFrame {
-    final Color colorBoton = new Color(100, 200, 100);
     final Dimension d = new Dimension(150, 180);
+    final Color verdeFondo = new Color(224, 250, 228);
+    final LineBorder bordeBerde = new LineBorder(new Color(47,158,68),2,true);
+    final Color colorBoton =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
+    final Font fontBotones = new Font("SansSerif", Font.BOLD, 12);
 
     // CORRECCIÓN 1: Añadimos Long idUsuario al constructor
     public DashboardFrame(String rol, String email, Long idUsuario) {
