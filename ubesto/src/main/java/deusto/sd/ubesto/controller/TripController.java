@@ -48,16 +48,15 @@ public class TripController {
     @PostMapping("/{tripId}/accept/{driverId}")
     public ResponseEntity<?> acceptTrip(@PathVariable Long tripId, @PathVariable Long driverId) {
         try {
-            Trip acceptedTrip = tripService.acceptTrip(tripId, driverId);
+            tripService.acceptTrip(tripId, driverId);
             System.out.println("CONTROLLER: Viaje " + tripId + " aceptado por conductor " + driverId + ". Simulación iniciada.");
-            return ResponseEntity.ok(acceptedTrip); // Devuelve 200 OK
+            return ResponseEntity
+            .ok()
+            .body("ACEPTADO"); // Devuelve 200 OK
 
         } catch (EntityNotFoundException e) {
             // Si el viaje o el conductor no existen
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (IllegalStateException e) {
-            // Si el viaje ya fue aceptado o está en otro estado incorrecto
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // 409 Conflict
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Error interno al aceptar el viaje.", HttpStatus.INTERNAL_SERVER_ERROR);
