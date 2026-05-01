@@ -52,7 +52,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Esta es la única dependencia que necesitas para TODAS las pruebas -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -65,8 +64,6 @@
     		<scope>test</scope>
 		</dependency>
 
-		 <!-- La dependencia 'spring-boot-test-autoconfigure' es transitiva de 'spring-boot-starter-test',
-		      por lo que no es estrictamente necesaria aquí, pero no hace daño. -->
 		 <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-test-autoconfigure</artifactId>
