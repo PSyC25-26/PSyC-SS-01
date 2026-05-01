@@ -1,5 +1,6 @@
 package deusto.sd.ubesto.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -26,13 +27,17 @@ public class PassengerService {
             if(passengerDTO.getId()!=null){
                 passengerDTO.setId(null);
             }
-    
-            Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getPosicionActual(), passengerDTO.getMetodoPago());
-            Passenger savedPassenger = passengerRepository.save(newPassenger);
-    
-            passengerDTO.setId(savedPassenger.getId());
-    
-            return passengerDTO;
+            Optional<Passenger> pasajeroemail = passengerRepository.findByEmail(passengerDTO.getEmail());
+            if(!pasajeroemail.isPresent()){
+                Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getPosicionActual(), passengerDTO.getMetodoPago());
+                Passenger savedPassenger = passengerRepository.save(newPassenger);
+        
+                passengerDTO.setId(savedPassenger.getId());
+        
+                return passengerDTO;
+            }else{
+                return null;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
