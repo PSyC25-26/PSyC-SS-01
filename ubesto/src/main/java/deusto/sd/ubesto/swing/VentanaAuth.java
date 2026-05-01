@@ -10,7 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class VentanaAuth extends JFrame {
-    private String rol;
+     private String rol;
     final Color verdeFondo = new Color(224, 250, 228);
     final LineBorder bordeBerde = new LineBorder(new Color(47,158,68),2,true);
     final Color verdeBoton =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
@@ -132,8 +132,6 @@ public class VentanaAuth extends JFrame {
                     } else {
                         JOptionPane.showMessageDialog(this, "Error al registrar (Código " + response.statusCode() + ").\n" + response.body(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
-                
-                    
                 }
 
             } catch (Exception ex) {
