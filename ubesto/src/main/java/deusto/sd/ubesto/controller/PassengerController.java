@@ -26,11 +26,7 @@ public class PassengerController {
     public ResponseEntity<PassengerDTO> registerPassenger(@RequestBody PassengerDTO passengerDTO) {
         try {
             PassengerDTO newPassenger = passengerService.registerPassenger(passengerDTO);
-            if(newPassenger==null){
-                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-            }else{
-                return new ResponseEntity<PassengerDTO>(newPassenger, HttpStatus.CREATED);
-            }
+            return new ResponseEntity<>(newPassenger, HttpStatus.CREATED);
 
         } catch (Exception e) {
             e.printStackTrace();

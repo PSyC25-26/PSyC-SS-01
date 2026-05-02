@@ -1,13 +1,16 @@
 package deusto.sd.ubesto.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import deusto.sd.ubesto.dao.*;
+import deusto.sd.ubesto.dao.DriverRepository;
+import deusto.sd.ubesto.dao.LoggedUserRepository;
 import deusto.sd.ubesto.dto.DriverDTO;
 import deusto.sd.ubesto.dto.LoginDTO;
-import deusto.sd.ubesto.entity.*;
+import deusto.sd.ubesto.entity.Driver;
+import deusto.sd.ubesto.entity.LoggedUser;
 
 @Service
 public class DriverService {
@@ -20,22 +23,32 @@ public class DriverService {
         this.loggedUserRepository = loggedUserRepository;
     }
 
-    public DriverDTO registerDriver(DriverDTO driverDTO){
+    public DriverDTO registerDriver(DriverDTO driverDTO) {
+        if (driverDTO.getId() != null) {
+            driverDTO.setId(null);
+        }
+        if (driverDTO.getVehicleActiveId() != null) {
+            driverDTO.setVehicleActiveId(null);
+        }
+
+        Optional<Driver> driverEmail = driverRepository.findByEmail(driverDTO.getEmail());
+        if (driverEmail.isPresent()) {
+            throw new IllegalArgumentException("Email ya existe");
+        }
+
         try {
-            if(driverDTO.getId()!=null){
-                driverDTO.setId(null);
-            }
-            if(driverDTO.getVehicleActiveId()!=null){
-                driverDTO.setVehicleActiveId(null);
-            }
-    
-            Driver newDriver =  new Driver(driverDTO.getNombre(), driverDTO.getEmail(),driverDTO.getPassword(),driverDTO.getLicenciaConducir(),
-            driverDTO.getCalificacionMedia(),driverDTO.getVehicleActiveId(), driverDTO.getPosicionActual());
-            
-            Driver savedDrived = driverRepository.save(newDriver);
-    
-            driverDTO.setId(savedDrived.getId());
-    
+            Driver newDriver = new Driver(
+                driverDTO.getNombre(),
+                driverDTO.getEmail(),
+                driverDTO.getPassword(),
+                driverDTO.getLicenciaConducir(),
+                driverDTO.getCalificacionMedia(),
+                driverDTO.getVehicleActiveId(),
+                driverDTO.getPosicionActual()
+            );
+
+            Driver savedDriver = driverRepository.save(newDriver);
+            driverDTO.setId(savedDriver.getId());
             return driverDTO;
 
         } catch (Exception e) {
@@ -44,16 +57,15 @@ public class DriverService {
         }
     }
 
-    public Long loginDriver(LoginDTO loginDTO){
+    public Long loginDriver(LoginDTO loginDTO) {
         try {
             boolean correcto = verificarPassword(loginDTO);
-            if(correcto){
+            if (correcto) {
                 Driver driver = driverRepository.findByEmail(loginDTO.getEmail()).get();
                 UUID token = UUID.randomUUID();
                 LoggedUser loggedUser = new LoggedUser("DRIVER", driver.getId(), token.toString());
                 loggedUserRepository.save(loggedUser);
-                
-                return driver.getId(); // Devolvemos el ID
+                return driver.getId();
             }
             return null;
         } catch (Exception e) {
@@ -62,11 +74,11 @@ public class DriverService {
         }
     }
 
-    public boolean verificarPassword(LoginDTO loginDTO){
-        String real_pw=driverRepository.findByEmail(loginDTO.getEmail()).get().getPassword();
-        if(loginDTO.getPassword().equals(real_pw)){
+    public boolean verificarPassword(LoginDTO loginDTO) {
+        String real_pw = driverRepository.findByEmail(loginDTO.getEmail()).get().getPassword();
+        if (loginDTO.getPassword().equals(real_pw)) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

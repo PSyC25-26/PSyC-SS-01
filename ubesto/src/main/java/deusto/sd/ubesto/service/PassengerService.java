@@ -22,22 +22,27 @@ public class PassengerService {
         this.loggedUserRepository = loggedUserRepository;
     }
 
-    public PassengerDTO registerPassenger(PassengerDTO passengerDTO){
+    public PassengerDTO registerPassenger(PassengerDTO passengerDTO) {
+        if (passengerDTO.getId() != null) {
+            passengerDTO.setId(null);
+        }
+
+        Optional<Passenger> pasajeroemail = passengerRepository.findByEmail(passengerDTO.getEmail());
+        if (pasajeroemail.isPresent()) {
+            throw new IllegalArgumentException("Email ya existe");
+        }
+
         try {
-            if(passengerDTO.getId()!=null){
-                passengerDTO.setId(null);
-            }
-            Optional<Passenger> pasajeroemail = passengerRepository.findByEmail(passengerDTO.getEmail());
-            if(!pasajeroemail.isPresent()){
-                Passenger newPassenger = new Passenger(passengerDTO.getNombre(), passengerDTO.getEmail(), passengerDTO.getPassword(), passengerDTO.getPosicionActual(), passengerDTO.getMetodoPago());
-                Passenger savedPassenger = passengerRepository.save(newPassenger);
-        
-                passengerDTO.setId(savedPassenger.getId());
-        
-                return passengerDTO;
-            }else{
-                return null;
-            }
+            Passenger newPassenger = new Passenger(
+                passengerDTO.getNombre(),
+                passengerDTO.getEmail(),
+                passengerDTO.getPassword(),
+                passengerDTO.getPosicionActual(),
+                passengerDTO.getMetodoPago()
+            );
+            Passenger savedPassenger = passengerRepository.save(newPassenger);
+            passengerDTO.setId(savedPassenger.getId());
+            return passengerDTO;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -45,16 +50,15 @@ public class PassengerService {
         }
     }
 
-    public Long loginPassenger(LoginDTO loginDTO){
+    public Long loginPassenger(LoginDTO loginDTO) {
         try {
             boolean correcto = verificarPassword(loginDTO);
-            if(correcto){
+            if (correcto) {
                 Passenger passenger = passengerRepository.findByEmail(loginDTO.getEmail()).get();
                 UUID token = UUID.randomUUID();
                 LoggedUser loggedUser = new LoggedUser("PASSENGER", passenger.getId(), token.toString());
                 loggedUserRepository.save(loggedUser);
-                
-                return passenger.getId(); // Devolvemos el ID
+                return passenger.getId();
             }
             return null;
         } catch (Exception e) {
@@ -63,11 +67,11 @@ public class PassengerService {
         }
     }
 
-    public boolean verificarPassword(LoginDTO loginDTO){
-        String real_pw=passengerRepository.findByEmail(loginDTO.getEmail()).get().getPassword();
-        if(loginDTO.getPassword().equals(real_pw)){
+    public boolean verificarPassword(LoginDTO loginDTO) {
+        String real_pw = passengerRepository.findByEmail(loginDTO.getEmail()).get().getPassword();
+        if (loginDTO.getPassword().equals(real_pw)) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -93,5 +97,4 @@ public class PassengerService {
             return null;
         }
     }
-    
 }

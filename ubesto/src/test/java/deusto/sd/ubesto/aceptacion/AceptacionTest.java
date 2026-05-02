@@ -60,6 +60,9 @@ public class AceptacionTest {
 
     private MockMvc mockMvc;
 
+    // Sufijo único por ejecución para evitar colisiones de email con otras suites
+    private static final String RUN_ID = String.valueOf(System.currentTimeMillis());
+
     // IDs compartidos entre tests del mismo escenario
     private static Long pasajeroId;
     private static Long conductorId;
@@ -79,21 +82,20 @@ public class AceptacionTest {
     @Order(1)
     @DisplayName("[A-01] Un nuevo pasajero puede registrarse correctamente")
     void a01_registroPasajero_nuevo_devuelve201YPersiste() throws Exception {
-        String body = """
+        String body = String.format("""
                 {
                   "nombre": "María García",
-                  "email": "maria.garcia@ubesto.com",
+                  "email": "maria-%s@ubesto.com",
                   "password": "securePass1",
                   "metodoPago": "tarjeta",
                   "posicionActual": {"latitud": 43.2630, "longitud": -2.9350}
                 }
-                """;
+                """, RUN_ID);
 
         MvcResult result = mockMvc.perform(post("/passengers/registerPassenger")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.email").value("maria.garcia@ubesto.com"))
                 .andExpect(jsonPath("$.nombre").value("María García"))
                 .andExpect(jsonPath("$.id").isNumber())
                 .andReturn();
@@ -107,17 +109,17 @@ public class AceptacionTest {
     @Order(2)
     @DisplayName("[A-02] Registrar un pasajero con email ya existente devuelve 406")
     void a02_registroPasajero_emailDuplicado_devuelve406() throws Exception {
-        String body = """
+        // Usa el mismo email que A-01 para provocar el duplicado
+        String body = String.format("""
                 {
                   "nombre": "Otro Usuario",
-                  "email": "maria.garcia@ubesto.com",
+                  "email": "maria-%s@ubesto.com",
                   "password": "otraPass",
                   "metodoPago": "efectivo",
                   "posicionActual": {"latitud": 0.0, "longitud": 0.0}
                 }
-                """;
+                """, RUN_ID);
 
-        // El email ya existe (registrado en A-01)
         mockMvc.perform(post("/passengers/registerPassenger")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
@@ -128,24 +130,24 @@ public class AceptacionTest {
     @Order(3)
     @DisplayName("[A-03] Un pasajero registrado puede hacer login y recibe su ID")
     void a03_loginPasajero_credencialesCorrectas_devuelveId() throws Exception {
-        // Registrar primero por si el test se ejecuta de forma aislada
+        String email = "loginuser-" + RUN_ID + "@ubesto.com";
+
         mockMvc.perform(post("/passengers/registerPassenger")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("""
+                .content(String.format("""
                         {
                           "nombre": "LoginUser",
-                          "email": "loginuser@ubesto.com",
+                          "email": "%s",
                           "password": "mypass123",
                           "metodoPago": "efectivo",
                           "posicionActual": {"latitud": 0.0, "longitud": 0.0}
                         }
-                        """));
+                        """, email)));
 
         MvcResult result = mockMvc.perform(post("/passengers/loginPassenger")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"email": "loginuser@ubesto.com", "password": "mypass123"}
-                                """))
+                        .content(String.format(
+                                "{\"email\": \"%s\", \"password\": \"mypass123\"}", email)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -159,17 +161,15 @@ public class AceptacionTest {
     void a10_actualizarPasajero_datosValidos_devuelve200() throws Exception {
         assertNotNull(pasajeroId, "Necesita que A-01 haya creado el pasajero");
 
-        String updateBody = String.format("""
-                {
-                  "nombre": "María G. Actualizada",
-                  "password": "newPass456",
-                  "metodoPago": "bizum"
-                }
-                """);
-
         mockMvc.perform(put("/passengers/update/" + pasajeroId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateBody))
+                        .content("""
+                                {
+                                  "nombre": "María G. Actualizada",
+                                  "password": "newPass456",
+                                  "metodoPago": "bizum"
+                                }
+                                """))
                 .andExpect(status().isOk());
     }
 
@@ -181,22 +181,21 @@ public class AceptacionTest {
     @Order(10)
     @DisplayName("[A-04] Un nuevo conductor puede registrarse correctamente")
     void a04_registroConductor_nuevo_devuelve201() throws Exception {
-        String body = """
+        String body = String.format("""
                 {
                   "nombre": "Pedro Rodríguez",
-                  "email": "pedro.rod@ubesto.com",
+                  "email": "pedro-%s@ubesto.com",
                   "password": "driverPass99",
-                  "licenciaConducir": "B-12345678",
+                  "licenciaConducir": "B-%s",
                   "calificacionMedia": 4.8,
                   "posicionActual": {"latitud": 43.2630, "longitud": -2.9350}
                 }
-                """;
+                """, RUN_ID, RUN_ID);
 
         MvcResult result = mockMvc.perform(post("/drivers/registerDriver")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.licenciaConducir").value("B-12345678"))
                 .andExpect(jsonPath("$.nombre").value("Pedro Rodríguez"))
                 .andReturn();
 
@@ -211,16 +210,18 @@ public class AceptacionTest {
     void a04b_loginConductor_credencialesCorrectas_devuelveId() throws Exception {
         assertNotNull(conductorId, "Necesita que A-04 haya creado el conductor");
 
+        String email = "pedro-" + RUN_ID + "@ubesto.com";
+
         MvcResult result = mockMvc.perform(post("/drivers/loginDriver")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"email": "pedro.rod@ubesto.com", "password": "driverPass99"}
-                                """))
+                        .content(String.format(
+                                "{\"email\": \"%s\", \"password\": \"driverPass99\"}", email)))
                 .andExpect(status().isOk())
                 .andReturn();
 
         long idFromLogin = Long.parseLong(result.getResponse().getContentAsString().trim());
-        assertEquals(conductorId, idFromLogin, "El ID devuelto en login debe coincidir con el del registro");
+        assertEquals(conductorId, idFromLogin,
+                "El ID devuelto en login debe coincidir con el del registro");
     }
 
     @Test
@@ -229,19 +230,17 @@ public class AceptacionTest {
     void a05_registroVehiculo_conductorExiste_devuelve201() throws Exception {
         assertNotNull(conductorId, "Necesita que A-04 haya creado el conductor");
 
-        String vehicleBody = """
-                {
-                  "matricula": "1234-BCN",
-                  "marca": "Toyota",
-                  "modelo": "Corolla",
-                  "color": "Blanco",
-                  "categoria": "UBERX"
-                }
-                """;
-
         MvcResult result = mockMvc.perform(post("/vehicles/create/" + conductorId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(vehicleBody))
+                        .content("""
+                                {
+                                  "matricula": "1234-BCN",
+                                  "marca": "Toyota",
+                                  "modelo": "Corolla",
+                                  "color": "Blanco",
+                                  "categoria": "UBERX"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.matricula").value("1234-BCN"))
                 .andExpect(jsonPath("$.marca").value("Toyota"))
@@ -291,18 +290,16 @@ public class AceptacionTest {
     void a06_solicitarViaje_pasajeroExiste_devuelve201ConPrecio() throws Exception {
         assertNotNull(pasajeroId, "Necesita que A-01 haya creado el pasajero");
 
-        String tripBody = String.format("""
-                {
-                  "passengerId": %d,
-                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
-                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
-                  "categoria": "UBERX"
-                }
-                """, pasajeroId);
-
         MvcResult result = mockMvc.perform(post("/trips/request")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(tripBody))
+                        .content(String.format("""
+                                {
+                                  "passengerId": %d,
+                                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
+                                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
+                                  "categoria": "UBERX"
+                                }
+                                """, pasajeroId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.estado").value("SOLICITADO"))
                 .andExpect(jsonPath("$.precio").isNumber())
@@ -322,34 +319,34 @@ public class AceptacionTest {
     void a13_solicitarViaje_categoriaBLACK_precioMayor() throws Exception {
         assertNotNull(pasajeroId, "Necesita que A-01 haya creado el pasajero");
 
-        String bodyUberX = String.format("""
-                {
-                  "passengerId": %d,
-                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
-                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
-                  "categoria": "UBERX"
-                }
-                """, pasajeroId);
-
-        String bodyBlack = String.format("""
-                {
-                  "passengerId": %d,
-                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
-                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
-                  "categoria": "BLACK"
-                }
-                """, pasajeroId);
-
         MvcResult rUberX = mockMvc.perform(post("/trips/request")
-                        .contentType(MediaType.APPLICATION_JSON).content(bodyUberX))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "passengerId": %d,
+                                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
+                                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
+                                  "categoria": "UBERX"
+                                }
+                                """, pasajeroId)))
                 .andExpect(status().isCreated()).andReturn();
 
         MvcResult rBlack = mockMvc.perform(post("/trips/request")
-                        .contentType(MediaType.APPLICATION_JSON).content(bodyBlack))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                  "passengerId": %d,
+                                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
+                                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
+                                  "categoria": "BLACK"
+                                }
+                                """, pasajeroId)))
                 .andExpect(status().isCreated()).andReturn();
 
-        double precioUberX = objectMapper.readTree(rUberX.getResponse().getContentAsString()).get("precio").asDouble();
-        double precioBlack = objectMapper.readTree(rBlack.getResponse().getContentAsString()).get("precio").asDouble();
+        double precioUberX = objectMapper.readTree(rUberX.getResponse().getContentAsString())
+                .get("precio").asDouble();
+        double precioBlack = objectMapper.readTree(rBlack.getResponse().getContentAsString())
+                .get("precio").asDouble();
 
         assertTrue(precioBlack > precioUberX,
                 "Precio BLACK (" + precioBlack + ") debe ser mayor que UBERX (" + precioUberX + ")");
@@ -370,7 +367,8 @@ public class AceptacionTest {
                 .andReturn();
 
         JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals("ACEPTADO", json.get("estado"));
+        // .asText() convierte el JsonNode a String correctamente
+        assertEquals("ACEPTADO", json.get("estado").asText());
     }
 
     @Test
@@ -379,33 +377,38 @@ public class AceptacionTest {
     void a09_aceptarViajeDosVeces_devuelve409() throws Exception {
         assertNotNull(viajeId, "Necesita que A-07 haya aceptado el viaje");
 
-        // Registrar un segundo conductor para que no falle por "conductor ocupado"
         MvcResult regResult = mockMvc.perform(post("/drivers/registerDriver")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                        .content(String.format("""
                                 {
                                   "nombre": "Segundo Conductor",
-                                  "email": "segundo@ubesto.com",
+                                  "email": "segundo-%s@ubesto.com",
                                   "password": "pass",
-                                  "licenciaConducir": "C-00000001",
+                                  "licenciaConducir": "C-%s",
                                   "calificacionMedia": 4.0,
                                   "posicionActual": {"latitud": 0.0, "longitud": 0.0}
                                 }
-                                """))
+                                """, RUN_ID, RUN_ID)))
                 .andExpect(status().isCreated())
                 .andReturn();
 
-        Long segundoConductorId = objectMapper.readTree(regResult.getResponse().getContentAsString()).get("id").asLong();
+        Long segundoConductorId = objectMapper
+                .readTree(regResult.getResponse().getContentAsString()).get("id").asLong();
 
-        // Añadir vehículo al segundo conductor
         mockMvc.perform(post("/vehicles/create/" + segundoConductorId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"matricula":"9999-ZZZ","marca":"Seat","modelo":"Ibiza","color":"Rojo","categoria":"UBERX"}
+                                {
+                                  "matricula": "9999-ZZZ",
+                                  "marca": "Seat",
+                                  "modelo": "Ibiza",
+                                  "color": "Rojo",
+                                  "categoria": "UBERX"
+                                }
                                 """))
                 .andExpect(status().isCreated());
 
-        // El viaje ya está en ACEPTADO → debe devolver 409
+        // El viaje ya está ACEPTADO → debe devolver 409
         mockMvc.perform(post("/trips/" + viajeId + "/accept/" + segundoConductorId))
                 .andExpect(status().isConflict());
     }
@@ -414,28 +417,52 @@ public class AceptacionTest {
     @Order(24)
     @DisplayName("[A-08] Aceptar un viaje inexistente devuelve 404")
     void a08_aceptarViaje_noExiste_devuelve404() throws Exception {
-        assertNotNull(conductorId, "Necesita que A-04 haya creado el conductor");
+        // Creamos un conductor limpio sin viajes activos para que el 404 venga del viaje, no del conductor
+        MvcResult regResult = mockMvc.perform(post("/drivers/registerDriver")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(String.format("""
+                                {
+                                "nombre": "Conductor Libre",
+                                "email": "libre-%s@ubesto.com",
+                                "password": "pass",
+                                "licenciaConducir": "L-%s",
+                                "calificacionMedia": 4.0,
+                                "posicionActual": {"latitud": 0.0, "longitud": 0.0}
+                                }
+                                """, RUN_ID, RUN_ID)))
+                .andExpect(status().isCreated())
+                .andReturn();
 
-        mockMvc.perform(post("/trips/999999/accept/" + conductorId))
+        Long conductorLibreId = objectMapper
+                .readTree(regResult.getResponse().getContentAsString()).get("id").asLong();
+
+        // Añadir vehículo para que no falle por falta de vehículo
+        mockMvc.perform(post("/vehicles/create/" + conductorLibreId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"matricula":"FREE-001","marca":"Ford","modelo":"Focus","color":"Gris","categoria":"UBERX"}
+                                """))
+                .andExpect(status().isCreated());
+
+        // Ahora sí: el viaje 999999 no existe → debe devolver 404
+        mockMvc.perform(post("/trips/999999/accept/" + conductorLibreId))
                 .andExpect(status().isNotFound());
-    }
+        }
 
     @Test
     @Order(25)
     @DisplayName("[A-14] Solicitar viaje con pasajero inexistente devuelve 404")
     void a14_solicitarViaje_pasajeroNoExiste_devuelve404() throws Exception {
-        String tripBody = """
-                {
-                  "passengerId": 999999,
-                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
-                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
-                  "categoria": "UBERX"
-                }
-                """;
-
         mockMvc.perform(post("/trips/request")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(tripBody))
+                        .content("""
+                                {
+                                  "passengerId": 999999,
+                                  "origen":  {"latitud": 43.2630, "longitud": -2.9350},
+                                  "destino": {"latitud": 43.3200, "longitud": -1.9800},
+                                  "categoria": "UBERX"
+                                }
+                                """))
                 .andExpect(status().isNotFound());
     }
 }

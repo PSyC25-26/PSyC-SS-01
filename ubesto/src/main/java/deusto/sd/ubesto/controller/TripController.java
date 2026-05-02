@@ -27,17 +27,16 @@ public class TripController {
      * Endpoint para que un pasajero solicite un nuevo viaje.
      */
     @PostMapping("/request")
-    public ResponseEntity<?> requestTrip(@RequestBody TripRequestDTO tripRequestDTO){ // CAMBIO: Usamos el DTO de solicitud
+    public ResponseEntity<?> requestTrip(@RequestBody TripRequestDTO tripRequestDTO) {
         try {
-            // CAMBIO: Llamamos al nuevo método del servicio
             Trip newTrip = tripService.requestTrip(tripRequestDTO);
             return new ResponseEntity<>(newTrip, HttpStatus.CREATED);
             
         } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // 404 si el pasajero no existe
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("Error interno al solicitar el viaje.", HttpStatus.INTERNAL_SERVER_ERROR); // 500
+            return new ResponseEntity<>("Error interno al solicitar el viaje.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -48,15 +47,14 @@ public class TripController {
     @PostMapping("/{tripId}/accept/{driverId}")
     public ResponseEntity<?> acceptTrip(@PathVariable Long tripId, @PathVariable Long driverId) {
         try {
-            tripService.acceptTrip(tripId, driverId);
+            Trip acceptedTrip = tripService.acceptTrip(tripId, driverId);
             System.out.println("CONTROLLER: Viaje " + tripId + " aceptado por conductor " + driverId + ". Simulación iniciada.");
-            return ResponseEntity
-            .ok()
-            .body("ACEPTADO"); // Devuelve 200 OK
+            return ResponseEntity.ok(acceptedTrip); // Devuelve 200 OK con el objeto Trip completo
 
         } catch (EntityNotFoundException e) {
-            // Si el viaje o el conductor no existen
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // 409
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Error interno al aceptar el viaje.", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -30,13 +30,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Validan que los endpoints cumplen umbrales de tiempo aceptables
  * y que el sistema responde correctamente bajo carga concurrente.
  *
+ * Escenarios cubiertos:
+ *   R-01: Registro individual de pasajero responde en menos de 500 ms
+ *   R-02: Login individual de pasajero responde en menos de 300 ms
+ *   R-03: Registro individual de conductor responde en menos de 500 ms
+ *   R-04: Solicitud de viaje responde en menos de 400 ms
+ *   R-05: 50 registros de pasajeros en serie en menos de 5 000 ms total
+ *   R-06: Media de 20 logins consecutivos inferior a 300 ms por petición
+ *   R-07: 10 registros simultáneos no generan errores 5xx
+ *   R-08: 5 solicitudes de viaje concurrentes no generan errores 5xx
+ *
  * Umbrales definidos (conservadores para entorno CI/CD con H2 en memoria):
- *   - Registro individual:   < 500 ms
- *   - Login individual:      < 300 ms
- *   - Solicitar viaje:       < 400 ms
- *   - 50 registros en serie: < 5 000 ms total
- *   - 10 peticiones paralelas: sin errores de servidor (5xx)
+ *   - Registro individual:    < 500 ms
+ *   - Login individual:       < 300 ms
+ *   - Solicitar viaje:        < 400 ms
+ *   - 50 registros en serie:  < 5 000 ms total
+ *
+ * Nota: para un análisis más detallado de CPU, heap y threads en tiempo real,
+ * conectar VisualVM al proceso JVM durante la ejecución de estos tests.
  */
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class RendimientoTest {
@@ -49,11 +62,13 @@ public class RendimientoTest {
 
     private MockMvc mockMvc;
 
-    // Umbrales en milisegundos
-    private static final long MAX_MS_REGISTRO       = 500L;
-    private static final long MAX_MS_LOGIN          = 300L;
-    private static final long MAX_MS_SOLICITAR      = 400L;
-    private static final long MAX_MS_SERIE_50       = 5_000L;
+    private static final long MAX_MS_REGISTRO  = 500L;
+    private static final long MAX_MS_LOGIN     = 300L;
+    private static final long MAX_MS_SOLICITAR = 400L;
+    private static final long MAX_MS_SERIE_50  = 5_000L;
+
+    // Prefijo único por ejecución para evitar colisiones con otras suites
+    private static final String RUN_ID = String.valueOf(System.currentTimeMillis());
 
     @BeforeEach
     void setup() {
@@ -67,7 +82,7 @@ public class RendimientoTest {
     @Test
     @DisplayName("[R-01] POST /passengers/registerPassenger responde en menos de " + MAX_MS_REGISTRO + " ms")
     void r01_registroPasajero_tiempoRespuesta() throws Exception {
-        String body = passengerBody("r01user@perf.com");
+        String body = passengerBody("r01-" + RUN_ID + "@perf.com");
 
         long inicio = System.currentTimeMillis();
         mockMvc.perform(post("/passengers/registerPassenger")
@@ -88,15 +103,14 @@ public class RendimientoTest {
     @Test
     @DisplayName("[R-02] POST /passengers/loginPassenger responde en menos de " + MAX_MS_LOGIN + " ms")
     void r02_loginPasajero_tiempoRespuesta() throws Exception {
-        // Pre-condición: registrar usuario
-        String email = "r02login@perf.com";
+        String email = "r02-" + RUN_ID + "@perf.com";
         mockMvc.perform(post("/passengers/registerPassenger")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(passengerBody(email)));
 
         String loginBody = "{\"email\":\"" + email + "\",\"password\":\"perfpass\"}";
 
-        // Calentar JVM con una petición previa
+        // Calentar JVM
         mockMvc.perform(post("/passengers/loginPassenger")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(loginBody));
@@ -120,7 +134,7 @@ public class RendimientoTest {
     @Test
     @DisplayName("[R-03] POST /drivers/registerDriver responde en menos de " + MAX_MS_REGISTRO + " ms")
     void r03_registroConductor_tiempoRespuesta() throws Exception {
-        String body = driverBody("r03driver@perf.com", "LIC-R03");
+        String body = driverBody("r03-" + RUN_ID + "@perf.com", "LIC-R03-" + RUN_ID);
 
         long inicio = System.currentTimeMillis();
         mockMvc.perform(post("/drivers/registerDriver")
@@ -141,21 +155,19 @@ public class RendimientoTest {
     @Test
     @DisplayName("[R-04] POST /trips/request responde en menos de " + MAX_MS_SOLICITAR + " ms")
     void r04_solicitarViaje_tiempoRespuesta() throws Exception {
-        // Pre-condición: crear pasajero
-        String email = "r04trip@perf.com";
+        String email = "r04-" + RUN_ID + "@perf.com";
         var regResult = mockMvc.perform(post("/passengers/registerPassenger")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(passengerBody(email)))
                 .andExpect(status().isCreated())
                 .andReturn();
-        Long pid = objectMapper.readTree(regResult.getResponse().getContentAsString()).get("id").asLong();
 
-        String tripBody = tripBody(pid, "UBERX");
+        Long pid = objectMapper.readTree(regResult.getResponse().getContentAsString()).get("id").asLong();
 
         long inicio = System.currentTimeMillis();
         mockMvc.perform(post("/trips/request")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(tripBody))
+                        .content(tripBody(pid, "UBERX")))
                 .andExpect(status().isCreated());
         long elapsed = System.currentTimeMillis() - inicio;
 
@@ -177,7 +189,7 @@ public class RendimientoTest {
         for (int i = 0; i < N; i++) {
             mockMvc.perform(post("/passengers/registerPassenger")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(passengerBody("r05serie" + i + "@perf.com")))
+                            .content(passengerBody("r05-" + RUN_ID + "-" + i + "@perf.com")))
                     .andExpect(status().isCreated());
         }
         long total = System.currentTimeMillis() - inicio;
@@ -195,7 +207,7 @@ public class RendimientoTest {
     @Test
     @DisplayName("[R-06] Media de 20 logins consecutivos inferior a " + MAX_MS_LOGIN + " ms/petición")
     void r06_logins_consecutivos_media() throws Exception {
-        String email = "r06batch@perf.com";
+        String email = "r06-" + RUN_ID + "@perf.com";
         mockMvc.perform(post("/passengers/registerPassenger")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(passengerBody(email)));
@@ -239,7 +251,7 @@ public class RendimientoTest {
                 try {
                     var result = mockMvc.perform(post("/passengers/registerPassenger")
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(passengerBody("r07concurrent" + idx + "@perf.com")))
+                                    .content(passengerBody("r07-" + RUN_ID + "-" + idx + "@perf.com")))
                             .andReturn();
                     int status = result.getResponse().getStatus();
                     if (status >= 500) errores5xx.incrementAndGet();
@@ -260,9 +272,9 @@ public class RendimientoTest {
                 N, elapsed, exitos.get(), errores5xx.get());
 
         assertEquals(0, errores5xx.get(),
-                "No debe haber errores 5xx en registros concurrentes, pero hubo: " + errores5xx.get());
+                "No debe haber errores 5xx, pero hubo: " + errores5xx.get());
         assertEquals(N, exitos.get(),
-                "Todos los registros deben completarse con 201, pero solo " + exitos.get() + " lo hicieron");
+                "Todos deben completarse con 201, pero solo " + exitos.get() + " lo hicieron");
     }
 
     // =========================================================
@@ -275,11 +287,11 @@ public class RendimientoTest {
         int N = 5;
         Long[] pasajeroIds = new Long[N];
 
-        // Crear N pasajeros previamente
         for (int i = 0; i < N; i++) {
             var r = mockMvc.perform(post("/passengers/registerPassenger")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(passengerBody("r08viaje" + i + "@perf.com")))
+                            .content(passengerBody("r08-" + RUN_ID + "-" + i + "@perf.com")))
+                    .andExpect(status().isCreated())  // falla rápido si hay problema
                     .andReturn();
             pasajeroIds[i] = objectMapper.readTree(r.getResponse().getContentAsString()).get("id").asLong();
         }

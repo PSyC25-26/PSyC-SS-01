@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import deusto.sd.ubesto.dto.*;
-import deusto.sd.ubesto.service.*;
+import deusto.sd.ubesto.dto.DriverDTO;
+import deusto.sd.ubesto.dto.LoginDTO;
+import deusto.sd.ubesto.service.DriverService;
 
 
 @RestController
@@ -28,16 +29,13 @@ public class DriverController {
     }
 
     // @ApiResponse(responseCode = "201", description = "Driver registrado correctamente")
-    @PostMapping("/registerDriver")
+   @PostMapping("/registerDriver")
     public ResponseEntity<DriverDTO> registerDriver(@RequestBody DriverDTO driverDTO) {
         try {
             DriverDTO newDriver = driverService.registerDriver(driverDTO);
-            if(newDriver==null){
-                return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-            }else{
-                return new ResponseEntity<DriverDTO>(newDriver, HttpStatus.CREATED);
-            }
-
+            return new ResponseEntity<>(newDriver, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
