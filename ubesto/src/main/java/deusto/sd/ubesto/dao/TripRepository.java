@@ -7,6 +7,6 @@ import java.util.List;
 
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Long> {
-    // Busca los viajes asociados al ID del cliente (Passenger)
     List<Trip> findByClienteId(Long clienteId);
+    List<Trip> findByConductorId(Long conductorId);
 }

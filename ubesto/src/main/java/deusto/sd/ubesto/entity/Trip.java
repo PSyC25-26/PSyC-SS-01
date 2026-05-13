@@ -149,5 +149,30 @@ public class Trip {
         this.posicionDestino = posicionDestino;
     }
 
+    // ... [MANTÉN TUS IMPORTS Y ATRIBUTOS ANTERIORES] ...
+
+    @Column(name="estado")
+    private EstadoViaje estado;
+
+    // NUEVO ATRIBUTO: Valoración del viaje
+    @Column(name="rating")
+    private Integer rating;
+
+    public enum EstadoViaje {
+        SOLICITADO, ACEPTADO, EN_CURSO, FINALIZADO, CANCELADO
+    }
+
+    public Trip() {}
+
+// ... [MANTÉN TUS CONSTRUCTORES Y GETTERS/SETTERS ANTERIORES] ...
+
+    // NUEVOS GETTERS Y SETTERS PARA LA VALORACIÓN (Añádelos al final de la clase)
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
 
 }

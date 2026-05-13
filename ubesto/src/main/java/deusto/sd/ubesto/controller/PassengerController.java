@@ -1,13 +1,13 @@
 package deusto.sd.ubesto.controller;
 
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import deusto.sd.ubesto.dto.LoginDTO;
 import deusto.sd.ubesto.dto.PassengerDTO;
-import deusto.sd.ubesto.service.PassengerService;
 import deusto.sd.ubesto.entity.Trip;
-import java.util.List;
+import deusto.sd.ubesto.service.PassengerService;
 
 @RestController
 @RequestMapping("/passengers")
@@ -28,10 +28,54 @@ public class PassengerController {
         }
     }
 
+    @PostMapping("/loginPassenger")
+    public ResponseEntity<?> loginPassenger(@RequestBody LoginDTO loginDTO) {
+        try {
+            Long idPassenger = passengerService.loginPassenger(loginDTO);
+            if(idPassenger != null){
+                return ResponseEntity.ok(idPassenger); 
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email o password incorrectos.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Fallo en el servidor.");
+        }
+    }
+    
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updatePassenger(@PathVariable Long id, @RequestBody PassengerDTO passengerDTO) {
+        PassengerDTO updated = passengerService.updatePassenger(id, passengerDTO);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pasajero no encontrado.");
+        }
+    }
+
+    @DeleteMapping("/logout/{id}")
+    public ResponseEntity<Boolean> deletePassenger(@PathVariable Long id) {
+        boolean borrado = passengerService.deletePassenger(id);
+        if (borrado) {
+            return new ResponseEntity<>(borrado, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(borrado, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // ENDPOINT: Historial de viajes
     @GetMapping("/{id}/trips")
     public ResponseEntity<List<Trip>> getTripHistory(@PathVariable Long id) {
         return ResponseEntity.ok(passengerService.getTripHistory(id));
     }
 
-    // ... (Mantén aquí tus métodos loginPassenger, updatePassenger y deletePassenger originales)
+    // ENDPOINT: Valorar viaje
+    @PostMapping("/rateTrip/{tripId}")
+    public ResponseEntity<String> rateTrip(@PathVariable Long tripId, @RequestParam int estrellas) {
+        boolean success = passengerService.rateTrip(tripId, estrellas);
+        if (success) {
+            return ResponseEntity.ok("Viaje valorado correctamente.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al valorar el viaje.");
+        }
+    }
 }
