@@ -1,26 +1,50 @@
 package deusto.sd.ubesto.dto;
 
-import deusto.sd.ubesto.entity.Posicion;
-
-public class PassengerDTO extends UserDTO{
-    private String metodoPago;
-    private Posicion posicionActual;
+public class PassengerDTO {
     
-    public PassengerDTO(Long id, String nombre, String email, String password, String metodoPago, 
-        Posicion posicionActual) {
-        super(id, nombre, email, password);
-        this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual;
-    }
+    private Long id;
+    private String nombre;
+    private String email;
+    private String password;
+    private String metodoPago;
+    private double latitud;
+    private double longitud;
 
-    public PassengerDTO(String nombre, String email, String password, String metodoPago,
-        Posicion posicionActual) {
-        super(nombre, email, password);
-        this.metodoPago = metodoPago;
-        this.posicionActual = posicionActual;
-    }
-
+    // Constructor vacío
     public PassengerDTO() {
+    }
+
+    // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getMetodoPago() {
@@ -31,12 +55,19 @@ public class PassengerDTO extends UserDTO{
         this.metodoPago = metodoPago;
     }
 
-    public Posicion getPosicionActual() {
-        return posicionActual;
+    public double getLatitud() {
+        return latitud;
     }
 
-    public void setPosicionActual(Posicion posicionActual) {
-        this.posicionActual = posicionActual;
+    public void setLatitud(double latitud) {
+        this.latitud = latitud;
     }
 
+    public double getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(double longitud) {
+        this.longitud = longitud;
+    }
 }

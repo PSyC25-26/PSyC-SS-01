@@ -17,15 +17,13 @@ import deusto.sd.ubesto.entity.Trip;
 public class PassengerService {
 
     private final PassengerRepository passengerRepository;
-    private final TripRepository tripRepository; // AÑADIDO: Repositorio de viajes
+    private final TripRepository tripRepository; 
 
-    // Constructor con inyección de dependencias (AÑADIDO el TripRepository)
+    // Constructor con inyección de dependencias
     public PassengerService(PassengerRepository passengerRepository, TripRepository tripRepository) {
         this.passengerRepository = passengerRepository;
         this.tripRepository = tripRepository;
     }
-
-    // --- MÉTODOS ANTERIORES (Inferidos por el Controlador) ---
 
     public PassengerDTO registerPassenger(PassengerDTO passengerDTO) {
         Passenger passenger = new Passenger();
@@ -44,7 +42,6 @@ public class PassengerService {
     }
 
     public Long loginPassenger(LoginDTO loginDTO) {
-        // Asumiendo que tienes un método findByEmailAndPassword en tu PassengerRepository
         Passenger passenger = passengerRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
         if (passenger != null) {
             return passenger.getId();
@@ -80,10 +77,16 @@ public class PassengerService {
         return false;
     }
 
-    // --- NUEVO MÉTODO IMPLEMENTADO ---
+    // --- MÉTODOS AÑADIDOS ---
     
+    // Obtiene el historial de viajes de un pasajero
     public List<Trip> getTripHistory(Long passengerId) {
-        // Llama al TripRepository para buscar los viajes del pasajero
         return tripRepository.findByClienteId(passengerId);
+    }
+
+    // Método necesario para que pasen las pruebas en UnitariosTest.java
+    public boolean verificarPassword(LoginDTO loginDTO) {
+        Passenger passenger = passengerRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
+        return passenger != null; 
     }
 }
