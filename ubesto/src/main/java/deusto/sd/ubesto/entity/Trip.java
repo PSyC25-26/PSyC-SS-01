@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "trips")
-
 public class Trip {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,19 +50,16 @@ public class Trip {
     @Column(name="estado")
     private EstadoViaje estado;
 
+    // NUEVO ATRIBUTO: Valoración del viaje
+    @Column(name="rating")
+    private Integer rating;
+
     public enum EstadoViaje {
         SOLICITADO, ACEPTADO, EN_CURSO, FINALIZADO, CANCELADO
     }
 
     // Constructor vacío
     public Trip() {
-    }
-
-    // Constructor con todos los parámetros
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
     }
 
     public Trip(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen, Posicion posicionDestino,
@@ -80,99 +76,40 @@ public class Trip {
 
     public Trip( Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen, Posicion posicionDestino,
         double precio, EstadoViaje estado) {
-    this.cliente = cliente;
-    this.conductor = conductor;
-    this.vehiculo = vehiculo;
-    this.posicionOrigen = posicionOrigen;
-    this.posicionDestino = posicionDestino;
-    this.precio = precio;
-    this.estado = estado;
-}
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Passenger getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Passenger cliente) {
         this.cliente = cliente;
-    }
-
-    public Driver getConductor() {
-        return conductor;
-    }
-
-    public void setConductor(Driver conductor) {
         this.conductor = conductor;
-    }
-
-    public Vehicle getVehiculo() {
-        return vehiculo;
-    }
-
-    public void setVehiculo(Vehicle vehiculo) {
         this.vehiculo = vehiculo;
-    }
-   
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
+        this.posicionOrigen = posicionOrigen;
+        this.posicionDestino = posicionDestino;
         this.precio = precio;
-    }
-
-    public EstadoViaje getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoViaje estado) {
         this.estado = estado;
     }
+
+    // Getters y Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Passenger getCliente() { return cliente; }
+    public void setCliente(Passenger cliente) { this.cliente = cliente; }
+
+    public Driver getConductor() { return conductor; }
+    public void setConductor(Driver conductor) { this.conductor = conductor; }
+
+    public Vehicle getVehiculo() { return vehiculo; }
+    public void setVehiculo(Vehicle vehiculo) { this.vehiculo = vehiculo; }
+   
+    public double getPrecio() { return precio; }
+    public void setPrecio(double precio) { this.precio = precio; }
+
+    public EstadoViaje getEstado() { return estado; }
+    public void setEstado(EstadoViaje estado) { this.estado = estado; }
     
-    public Posicion getPosicionOrigen() {
-        return posicionOrigen;
-    }
+    public Posicion getPosicionOrigen() { return posicionOrigen; }
+    public void setPosicionOrigen(Posicion posicionOrigen) { this.posicionOrigen = posicionOrigen; }
 
-    public void setPosicionOrigen(Posicion posicionOrigen) {
-        this.posicionOrigen = posicionOrigen;
-    }
+    public Posicion getPosicionDestino() { return posicionDestino; }
+    public void setPosicionDestino(Posicion posicionDestino) { this.posicionDestino = posicionDestino; }
 
-    public Posicion getPosicionDestino() {
-        return posicionDestino;
-    }
-
-    public void setPosicionDestino(Posicion posicionDestino) {
-        this.posicionDestino = posicionDestino;
-    }
-
-    // ... [MANTÉN TUS IMPORTS Y ATRIBUTOS ANTERIORES] ...
-
-    @Column(name="estado")
-    private EstadoViaje estado;
-
-    // NUEVO ATRIBUTO: Valoración del viaje
-    @Column(name="rating")
-    private Integer rating;
-
-    public enum EstadoViaje {
-        SOLICITADO, ACEPTADO, EN_CURSO, FINALIZADO, CANCELADO
-    }
-
-    public Trip() {}
-
-// ... [MANTÉN TUS CONSTRUCTORES Y GETTERS/SETTERS ANTERIORES] ...
-
-    // NUEVOS GETTERS Y SETTERS PARA LA VALORACIÓN (Añádelos al final de la clase)
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
+    public Integer getRating() { return rating; }
+    public void setRating(Integer rating) { this.rating = rating; }
 }
