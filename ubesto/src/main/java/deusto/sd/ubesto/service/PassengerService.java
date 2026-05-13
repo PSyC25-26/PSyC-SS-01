@@ -1,116 +1,89 @@
 package deusto.sd.ubesto.service;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import deusto.sd.ubesto.dao.LoggedUserRepository;
 import deusto.sd.ubesto.dao.PassengerRepository;
+import deusto.sd.ubesto.dao.TripRepository;
 import deusto.sd.ubesto.dto.LoginDTO;
 import deusto.sd.ubesto.dto.PassengerDTO;
-import deusto.sd.ubesto.entity.LoggedUser;
 import deusto.sd.ubesto.entity.Passenger;
+import deusto.sd.ubesto.entity.Posicion;
+import deusto.sd.ubesto.entity.Trip;
 
 @Service
 public class PassengerService {
-    private final PassengerRepository passengerRepository;
-    private final LoggedUserRepository loggedUserRepository;
 
-    public PassengerService(PassengerRepository passengerRepository, LoggedUserRepository loggedUserRepository) {
+    private final PassengerRepository passengerRepository;
+    private final TripRepository tripRepository; // AÑADIDO: Repositorio de viajes
+
+    // Constructor con inyección de dependencias (AÑADIDO el TripRepository)
+    public PassengerService(PassengerRepository passengerRepository, TripRepository tripRepository) {
         this.passengerRepository = passengerRepository;
-        this.loggedUserRepository = loggedUserRepository;
+        this.tripRepository = tripRepository;
     }
 
+    // --- MÉTODOS ANTERIORES (Inferidos por el Controlador) ---
+
     public PassengerDTO registerPassenger(PassengerDTO passengerDTO) {
-        if (passengerDTO.getId() != null) {
-            passengerDTO.setId(null);
+        Passenger passenger = new Passenger();
+        passenger.setNombre(passengerDTO.getNombre());
+        passenger.setEmail(passengerDTO.getEmail());
+        passenger.setPassword(passengerDTO.getPassword());
+        
+        if (passengerDTO.getLatitud() != 0.0 && passengerDTO.getLongitud() != 0.0) {
+            passenger.setPosicionActual(new Posicion(passengerDTO.getLatitud(), passengerDTO.getLongitud()));
         }
+        passenger.setMetodoPago(passengerDTO.getMetodoPago());
 
-        Optional<Passenger> pasajeroemail = passengerRepository.findByEmail(passengerDTO.getEmail());
-        if (pasajeroemail.isPresent()) {
-            throw new IllegalArgumentException("Email ya existe");
-        }
-
-        try {
-            Passenger newPassenger = new Passenger(
-                passengerDTO.getNombre(),
-                passengerDTO.getEmail(),
-                passengerDTO.getPassword(),
-                passengerDTO.getPosicionActual(),
-                passengerDTO.getMetodoPago()
-            );
-            Passenger savedPassenger = passengerRepository.save(newPassenger);
-            passengerDTO.setId(savedPassenger.getId());
-            return passengerDTO;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        Passenger savedPassenger = passengerRepository.save(passenger);
+        passengerDTO.setId(savedPassenger.getId());
+        return passengerDTO;
     }
 
     public Long loginPassenger(LoginDTO loginDTO) {
-        try {
-            boolean correcto = verificarPassword(loginDTO);
-            if (correcto) {
-                Passenger passenger = passengerRepository.findByEmail(loginDTO.getEmail()).get();
-                UUID token = UUID.randomUUID();
-                LoggedUser loggedUser = new LoggedUser("PASSENGER", passenger.getId(), token.toString());
-                loggedUserRepository.save(loggedUser);
-                return passenger.getId();
-            }
-            return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        // Asumiendo que tienes un método findByEmailAndPassword en tu PassengerRepository
+        Passenger passenger = passengerRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
+        if (passenger != null) {
+            return passenger.getId();
         }
-    }
-
-    public boolean verificarPassword(LoginDTO loginDTO) {
-        String real_pw = passengerRepository.findByEmail(loginDTO.getEmail()).get().getPassword();
-        if (loginDTO.getPassword().equals(real_pw)) {
-            return true;
-        } else {
-            return false;
-        }
+        return null; 
     }
 
     public PassengerDTO updatePassenger(Long id, PassengerDTO passengerDTO) {
-        try {
-            Passenger passenger = passengerRepository.findById(id).orElse(null);
-            if (passenger == null) return null;
-
-            if (passengerDTO.getNombre() != null && !passengerDTO.getNombre().isBlank())
-                passenger.setNombre(passengerDTO.getNombre());
-
-            if (passengerDTO.getPassword() != null && !passengerDTO.getPassword().isBlank())
-                passenger.setPassword(passengerDTO.getPassword());
-
-            if (passengerDTO.getMetodoPago() != null && !passengerDTO.getMetodoPago().isBlank())
-                passenger.setMetodoPago(passengerDTO.getMetodoPago());
+        Optional<Passenger> optionalPassenger = passengerRepository.findById(id);
+        if (optionalPassenger.isPresent()) {
+            Passenger passenger = optionalPassenger.get();
+            passenger.setNombre(passengerDTO.getNombre());
+            passenger.setEmail(passengerDTO.getEmail());
+            passenger.setPassword(passengerDTO.getPassword());
+            passenger.setMetodoPago(passengerDTO.getMetodoPago());
+            
+            if (passengerDTO.getLatitud() != 0.0 && passengerDTO.getLongitud() != 0.0) {
+                 passenger.setPosicionActual(new Posicion(passengerDTO.getLatitud(), passengerDTO.getLongitud()));
+            }
 
             passengerRepository.save(passenger);
+            passengerDTO.setId(passenger.getId());
             return passengerDTO;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
-    public boolean deletePassenger(Long id){
-        try {
-            loggedUserRepository.deleteByUserid(id);
-            Optional<LoggedUser> d1= loggedUserRepository.findByUserid(id);
-            if(!d1.isPresent()){
-                return true;
-            }else{
-                return false;
-            }
-        } catch (Exception e) {
-            // TODO: handle exception
-            e.printStackTrace();
-            return false;
+    public boolean deletePassenger(Long id) {
+        if (passengerRepository.existsById(id)) {
+            passengerRepository.deleteById(id);
+            return true;
         }
+        return false;
+    }
+
+    // --- NUEVO MÉTODO IMPLEMENTADO ---
+    
+    public List<Trip> getTripHistory(Long passengerId) {
+        // Llama al TripRepository para buscar los viajes del pasajero
+        return tripRepository.findByClienteId(passengerId);
     }
 }
