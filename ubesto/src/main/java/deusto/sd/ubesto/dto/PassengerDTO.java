@@ -1,6 +1,7 @@
 package deusto.sd.ubesto.dto;
 
 public class PassengerDTO {
+    
     private Long id;
     private String nombre;
     private String email;

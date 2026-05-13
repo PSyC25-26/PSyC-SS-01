@@ -4,14 +4,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import deusto.sd.ubesto.swing.VentanaPrincipal;
 
 @SpringBootApplication
 public class UbestoApplication {
 
     public static void main(String[] args) {
-
+        // Añadir estética: Aplicar Look and Feel moderno (Nimbus)
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -24,7 +23,6 @@ public class UbestoApplication {
         }
 
         SwingUtilities.invokeLater(() -> new VentanaPrincipal().setVisible(true));
-        
         SpringApplication.run(UbestoApplication.class, args);
     }
 }

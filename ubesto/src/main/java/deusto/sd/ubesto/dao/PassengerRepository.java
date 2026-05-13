@@ -7,10 +7,8 @@ import java.util.Optional;
 
 @Repository
 public interface PassengerRepository extends JpaRepository<Passenger, Long> {
-    
-    // Usado por PassengerService.loginPassenger
+    // Usado por tu lógica principal
     Passenger findByEmailAndPassword(String email, String password);
-
-    // Modificado para devolver Optional<Passenger> según lo requieren tus tests
+    // Usado por tus pruebas en UnitariosTest.java
     Optional<Passenger> findByEmail(String email);
 }
