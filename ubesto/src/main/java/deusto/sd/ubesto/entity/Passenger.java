@@ -26,6 +26,10 @@ public class Passenger extends User {
         super(nombre, email, password, posicionActual);
         this.metodoPago = metodoPago;
     }
+    public Passenger(String nombre, String email, String password, String metodoPago) {
+        super(nombre, email, password);
+        this.metodoPago = metodoPago;
+    }
 
     public void setMetodoPago(String metodoPago) {
         this.metodoPago = metodoPago;

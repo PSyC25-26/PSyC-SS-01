@@ -33,17 +33,30 @@ public class PassengerService {
     }
 
     public PassengerDTO registerPassenger(PassengerDTO passengerDTO) {
-        Passenger passenger = new Passenger();
-        passenger.setNombre(passengerDTO.getNombre());
-        passenger.setEmail(passengerDTO.getEmail());
-        passenger.setPassword(passengerDTO.getPassword());
-        passenger.setMetodoPago(passengerDTO.getMetodoPago());
+        Passenger passenger = new Passenger(passengerDTO.getNombre(),passengerDTO.getEmail(),passengerDTO.getPassword(),
+        passengerDTO.getMetodoPago());
+
         if (passengerDTO.getLatitud() != 0.0 && passengerDTO.getLongitud() != 0.0) {
             passenger.setPosicionActual(new Posicion(passengerDTO.getLatitud(), passengerDTO.getLongitud()));
         }
-        Passenger saved = passengerRepository.save(passenger);
-        passengerDTO.setId(saved.getId());
-        return passengerDTO;
+        boolean esNuevo = verSiPasajeroEsNuevo(passengerDTO.getEmail());
+        if(esNuevo){
+            Passenger saved = passengerRepository.save(passenger);
+            passengerDTO.setId(saved.getId());
+            return passengerDTO;
+        }else{
+            return null;
+        }
+    }
+
+    public boolean verSiPasajeroEsNuevo(String email){
+        Optional<Passenger> pasajero_email=passengerRepository.findByEmail(email);
+        if(!pasajero_email.isPresent()){ // si no encuentra el email, es que es nuevo
+            return true;
+        }else{
+            return false;
+        }
+
     }
 
     public Long loginPassenger(LoginDTO loginDTO) {
@@ -79,8 +92,10 @@ public class PassengerService {
 
     // Método para UnitariosTest.java
     public boolean verificarPassword(LoginDTO loginDTO) {
-        Passenger passenger = passengerRepository.findByEmailAndPassword(loginDTO.getEmail(), loginDTO.getPassword());
-        return passenger != null;
+        Optional<Passenger> passenger = passengerRepository.findByEmail(loginDTO.getEmail());
+    
+        // Si existe y la contraseña coincide, devolvemos true
+        return passenger.isPresent() && passenger.get().getPassword().equals(loginDTO.getPassword());
     }
 
     // HISTORIAL DE VIAJES

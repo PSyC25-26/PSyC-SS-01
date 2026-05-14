@@ -42,6 +42,12 @@ public abstract class User {
         this.password = password;
         this.posicionActual = posicionActual;
     }
+    
+    public User(String nombre, String email, String password) {
+        this.nombre = nombre;
+        this.email = email;
+        this.password = password;
+    }
 
     // Getters y Setters
     public Long getId() {
