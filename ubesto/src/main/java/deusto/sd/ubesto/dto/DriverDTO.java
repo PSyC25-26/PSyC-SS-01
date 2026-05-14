@@ -6,6 +6,7 @@ public class DriverDTO extends UserDTO{
     private double calificacionMedia;
     private Long vehicleActiveId;
     protected Posicion posicionActual;
+    private double monedero;
 
 
     public DriverDTO(Long id, String nombre, String email, String password, String licenciaConducir,
@@ -56,5 +57,8 @@ public class DriverDTO extends UserDTO{
     public void setPosicionActual(Posicion posicionActual) {
         this.posicionActual = posicionActual;
     }
+    public double getMonedero() { return monedero; }
+    public void setMonedero(double monedero) { this.monedero = monedero; }
+
     
 }

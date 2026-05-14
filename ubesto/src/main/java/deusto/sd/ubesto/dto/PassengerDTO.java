@@ -9,6 +9,7 @@ public class PassengerDTO {
     private String metodoPago;
     private double latitud;
     private double longitud;
+    private double monedero;
 
     public PassengerDTO() {}
 
@@ -32,4 +33,7 @@ public class PassengerDTO {
     
     public double getLongitud() { return longitud; }
     public void setLongitud(double longitud) { this.longitud = longitud; }
+
+    public double getMonedero() { return monedero; }
+    public void setMonedero(double monedero) { this.monedero = monedero; }
 }
