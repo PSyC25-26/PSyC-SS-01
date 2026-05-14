@@ -8,6 +8,7 @@ import deusto.sd.ubesto.dto.LoginDTO;
 import deusto.sd.ubesto.dto.PassengerDTO;
 import deusto.sd.ubesto.entity.Trip;
 import deusto.sd.ubesto.service.PassengerService;
+import deusto.sd.ubesto.entity.Passenger;
 
 @RestController
 @RequestMapping("/passengers")
