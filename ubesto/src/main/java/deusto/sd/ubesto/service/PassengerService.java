@@ -109,4 +109,7 @@ public class PassengerService {
         }
         return false;
     }
+    public Passenger getPassengerById(Long id) {
+        return passengerRepository.findById(id).orElse(null);
+    }
 }

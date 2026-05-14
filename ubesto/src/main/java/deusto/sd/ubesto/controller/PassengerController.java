@@ -78,4 +78,14 @@ public class PassengerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al valorar el viaje.");
         }
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Passenger> getPassengerById(@PathVariable Long id) {
+        // Buscamos el pasajero usando el servicio
+        Passenger p = passengerService.getPassengerById(id);
+        if (p != null) {
+            return ResponseEntity.ok(p);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

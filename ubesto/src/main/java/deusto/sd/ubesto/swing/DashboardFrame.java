@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DashboardFrame extends JFrame {
     final Dimension d = new Dimension(150, 180);
@@ -31,13 +33,26 @@ public class DashboardFrame extends JFrame {
         setLayout(new BorderLayout());
 
 
-        // CORRECCIÓN 2: Mostramos el ID en el mensaje de bienvenida para comprobar que llega bien
+        // Creamos un panel para la cabecera que tenga 2 filas (Bienvenida y Saldo)
+        JPanel panelCabecera = new JPanel(new GridLayout(2, 1));
+        panelCabecera.setBackground(fondoClarito_verde);
+
         JLabel lblBienvenida = new JLabel("Bienvenido, [" + rol + "] " + email + " (ID: " + idUsuario + ")");
-        lblBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        add(lblBienvenida, BorderLayout.NORTH);
+        lblBienvenida.setBorder(BorderFactory.createEmptyBorder(15, 20, 0, 20));
+
+        // Creamos la etiqueta del saldo
+        JLabel lblSaldo = new JLabel("Cargando saldo...");
+        lblSaldo.setBorder(BorderFactory.createEmptyBorder(5, 20, 10, 20));
+        lblSaldo.setFont(new Font("SansSerif", Font.BOLD, 14));
+        lblSaldo.setForeground(new Color(47, 158, 68)); 
+
+        panelCabecera.add(lblBienvenida);
+        panelCabecera.add(lblSaldo);
+        
+        add(panelCabecera, BorderLayout.NORTH);
         setBackground(fondoClarito_verde);
-        lblBienvenida.setOpaque(true);
-        lblBienvenida.setBackground(fondoClarito_verde);
+
+        actualizarSaldo(lblSaldo, idUsuario, rol);
 
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
         panelBotones.setBackground(fondoClarito_verde);
@@ -171,5 +186,22 @@ public class DashboardFrame extends JFrame {
 
         add(panelAtras,BorderLayout.SOUTH);
         panelAtras.add(btnCerrarSesion,BorderLayout.WEST);
+    }
+    private void actualizarSaldo(JLabel lblSaldo, Long id, String rol) {
+        try {
+            String url = "http://localhost:8080/" + (rol.equals("PASAJERO") ? "passengers/" : "drivers/") + id;
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode json = mapper.readTree(response.body());
+                double saldo = json.get("monedero").asDouble();
+                lblSaldo.setText("Saldo actual: " + saldo + "€");
+            }
+        } catch (Exception e) {
+            lblSaldo.setText("Saldo: ---");
+        }
     }
 }

@@ -121,4 +121,7 @@ public class DriverService {
         }
         
     }
+    public Driver getDriverById(Long id) {
+        return driverRepository.findById(id).orElse(null);
+    }
 }

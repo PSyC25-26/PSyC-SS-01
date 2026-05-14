@@ -76,6 +76,15 @@ public class DriverController {
             return new ResponseEntity<>(borrado, HttpStatus.NOT_FOUND);
         }
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Driver> getDriverById(@PathVariable Long id) {
+        Driver d = driverService.getDriverById(id);
+        if (d != null) {
+            return ResponseEntity.ok(d);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
    
 
 
