@@ -1,11 +1,23 @@
 package deusto.sd.ubesto.swing;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+
 import java.awt.*;
 import java.net.URI;
 import java.net.http.*;
 
 public class VentanaEditarPasajero extends JFrame {
+
+    final Color fondoClarito_verde = new Color(224, 250, 228);
+    final LineBorder btnNormalBorde = new LineBorder(new Color(47,158,68),2,true);
+    final Color btnNormalVerde =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
+    final Font fontBtnNormal = new Font("SansSerif", Font.BOLD, 12);
+    final Color btnSalirFont = new Color(47, 158, 68);
+    final LineBorder btnSalirBorde = new LineBorder(new Color(47,158,68),2,true);
+    final EmptyBorder paddingBtnAtras =  new EmptyBorder(10, 15, 10, 15);
 
     public VentanaEditarPasajero(String emailActual, Long idPasajero) {
         setTitle("Editar Perfil de Pasajero");
@@ -13,9 +25,11 @@ public class VentanaEditarPasajero extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setBackground(fondoClarito_verde);
 
         JPanel panelForm = new JPanel(new GridLayout(4, 2, 10, 15));
         panelForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panelForm.setBackground(fondoClarito_verde);
 
         // Campos a editar
         JTextField txtNombre = new JTextField();
@@ -32,9 +46,15 @@ public class VentanaEditarPasajero extends JFrame {
         panelForm.add(txtMetodoPago);
 
         // Botones
-        JButton btnVolver = new JButton("Volver");
         JButton btnGuardar = new JButton("Guardar Cambios");
-        btnGuardar.setBackground(new Color(100, 200, 100));
+        btnGuardar.setBackground(btnNormalVerde);
+        btnGuardar.setFont(fontBtnNormal);
+        btnGuardar.setBorder(btnNormalBorde);
+        btnGuardar.setForeground(Color.white);
+
+        JButton btnVolver = new JButton("Volver");
+        btnVolver.setBorder(new CompoundBorder(btnSalirBorde, paddingBtnAtras));
+        btnVolver.setForeground(btnSalirFont);
 
         panelForm.add(btnVolver);
         panelForm.add(btnGuardar);
