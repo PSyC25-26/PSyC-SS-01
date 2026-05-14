@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import deusto.sd.ubesto.dao.DriverRepository;
+import deusto.sd.ubesto.dao.LoggedUserRepository; 
 import deusto.sd.ubesto.dao.PassengerRepository;
 import deusto.sd.ubesto.dao.TripRepository;
 import deusto.sd.ubesto.dto.LoginDTO;
@@ -19,11 +20,16 @@ public class PassengerService {
     private final PassengerRepository passengerRepository;
     private final TripRepository tripRepository;
     private final DriverRepository driverRepository;
+    private final LoggedUserRepository loggedUserRepository; 
 
-    public PassengerService(PassengerRepository passengerRepository, TripRepository tripRepository, DriverRepository driverRepository) {
+    public PassengerService(PassengerRepository passengerRepository, 
+                            TripRepository tripRepository, 
+                            DriverRepository driverRepository,
+                            LoggedUserRepository loggedUserRepository) { 
         this.passengerRepository = passengerRepository;
         this.tripRepository = tripRepository;
         this.driverRepository = driverRepository;
+        this.loggedUserRepository = loggedUserRepository; 
     }
 
     public PassengerDTO registerPassenger(PassengerDTO passengerDTO) {
@@ -63,11 +69,12 @@ public class PassengerService {
     }
 
     public boolean deletePassenger(Long id) {
-        if (passengerRepository.existsById(id)) {
-            passengerRepository.deleteById(id);
+        try {
+            loggedUserRepository.deleteByUserid(id);
             return true;
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     // Método para UnitariosTest.java
