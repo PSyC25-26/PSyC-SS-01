@@ -92,6 +92,11 @@ public class DashboardFrame extends JFrame {
                 dispose(); 
             });
 
+            btnHistorial.addActionListener(e -> {
+                new VentanaHistorialViajes(email, idUsuario).setVisible(true);
+                dispose(); 
+            });
+
             panelBotones.add(btnEditar);
             panelBotones.add(btnBuscar);
             panelBotones.add(btnHistorial);
