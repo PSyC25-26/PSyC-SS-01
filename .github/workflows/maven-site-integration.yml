@@ -48,13 +48,17 @@ jobs:
           source: ./docs
           destination: ./public
 
-      - name: Attach JaCoCo report to Pages artifact
+      - name: Prepare Pages artifact
         run: |
-          mkdir -p ./public
+          mkdir -p ./artifact
+
+          if [ -d docs ]; then
+            cp -r docs/* ./artifact/
+          fi
 
           if [ -d ubesto/target/site/jacoco ]; then
-            mkdir -p ./public/jacoco
-            cp -r ubesto/target/site/jacoco/* ./public/jacoco/
+            mkdir -p ./artifact/jacoco
+            cp -r ubesto/target/site/jacoco/* ./artifact/jacoco/
           fi
 
       - name: Configure Pages
@@ -65,7 +69,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: ./artifact
 
       - name: Deploy to GitHub Pages
         if: github.event_name != 'pull_request'
