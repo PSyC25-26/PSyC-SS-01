@@ -30,19 +30,29 @@ public class PassengerController {
     }
 
     @PostMapping("/registerPassenger")
-    public ResponseEntity<PassengerDTO> registerPassenger(@RequestBody PassengerDTO passengerDTO) {
+    public ResponseEntity<?> registerPassenger(@RequestBody PassengerDTO passengerDTO) {
         try {
             PassengerDTO newPassenger = passengerService.registerPassenger(passengerDTO);
+
             if (newPassenger != null) {
                 return new ResponseEntity<>(newPassenger, HttpStatus.CREATED);
             }
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_ACCEPTABLE)
+                    .body("No se ha podido registrar el pasajero. Probablemente el email ya existe.");
+
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+            return ResponseEntity
+                    .status(HttpStatus.NOT_ACCEPTABLE)
+                    .body(e.getMessage());
+
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
-        }
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno al registrar pasajero: " + e.getMessage());
     }
+}
 
     @PostMapping("/loginPassenger")
     public ResponseEntity<?> loginPassenger(@RequestBody LoginDTO loginDTO) {
