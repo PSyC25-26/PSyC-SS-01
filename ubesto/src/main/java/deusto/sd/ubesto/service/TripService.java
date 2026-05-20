@@ -1,5 +1,6 @@
 package deusto.sd.ubesto.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import deusto.sd.ubesto.dao.DriverRepository;
 import deusto.sd.ubesto.dao.PassengerRepository;
 import deusto.sd.ubesto.dao.TripRepository;
 import deusto.sd.ubesto.dao.VehicleRepository;
+import deusto.sd.ubesto.dto.TripHistoryDTO;
 import deusto.sd.ubesto.dto.TripRequestDTO;
 import deusto.sd.ubesto.entity.Driver;
 import deusto.sd.ubesto.entity.Passenger;
@@ -19,6 +21,7 @@ import deusto.sd.ubesto.entity.Trip.EstadoViaje;
 import deusto.sd.ubesto.entity.Vehicle;
 import deusto.sd.ubesto.entity.Vehicle.CategoriaVehiculo;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TripService {
@@ -29,7 +32,7 @@ public class TripService {
     private final VehicleRepository vehicleRepository;
 
     @Autowired
-    public TripService(TripRepository tripRepository, PassengerRepository passengerRepository, 
+    public TripService(TripRepository tripRepository, PassengerRepository passengerRepository,
                        DriverRepository driverRepository, VehicleRepository vehicleRepository) {
         this.tripRepository = tripRepository;
         this.passengerRepository = passengerRepository;
@@ -37,14 +40,16 @@ public class TripService {
         this.vehicleRepository = vehicleRepository;
     }
 
-    /**
-     * Crea una nueva solicitud de viaje
-     */
     public Trip requestTrip(TripRequestDTO request) {
-        Passenger passenger = passengerRepository.findById(request.getPassengerId())
-                .orElseThrow(() -> new EntityNotFoundException("Passenger not found with id: " + request.getPassengerId()));
+        validateTripRequest(request);
 
-        // Calculamos el precio incluyendo la categoría
+        Passenger passenger = passengerRepository.findById(request.getPassengerId())
+            .orElseThrow(() -> new EntityNotFoundException("Passenger not found with id: " + request.getPassengerId()));
+
+        if (passenger.isCuentaEliminada()) {
+            throw new EntityNotFoundException("Passenger not found with id: " + request.getPassengerId());
+        }
+
         double price = calculatePrice(request.getOrigen(), request.getDestino(), request.getCategoria());
 
         Trip newTrip = new Trip();
@@ -57,140 +62,210 @@ public class TripService {
         return tripRepository.save(newTrip);
     }
 
-    /**
-     * Un conductor acepta un viaje e inicia la simulación.
-     */
     public Trip acceptTrip(Long tripId, Long driverId) {
-
-        // Comprobar si el conductor ya tiene un viaje activo (ACPETADO o EN_CURSO)
         boolean isBusy = tripRepository.findAll().stream()
-            .anyMatch(t -> t.getConductor() != null && 
-                        t.getConductor().getId().equals(driverId) && 
-                        (t.getEstado() == EstadoViaje.ACEPTADO || t.getEstado() == EstadoViaje.EN_CURSO));
+            .anyMatch(t -> t.getConductor() != null
+                && t.getConductor().getId().equals(driverId)
+                && (t.getEstado() == EstadoViaje.ACEPTADO || t.getEstado() == EstadoViaje.EN_CURSO));
 
         if (isBusy) {
             throw new IllegalStateException("El conductor ya tiene un viaje en curso.");
         }
+
         Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
+            .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
 
         if (trip.getEstado() != EstadoViaje.SOLICITADO) {
             throw new IllegalStateException("El viaje no puede ser aceptado, su estado es: " + trip.getEstado());
         }
 
         Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new EntityNotFoundException("Driver not found with id: " + driverId));
-        
+            .orElseThrow(() -> new EntityNotFoundException("Driver not found with id: " + driverId));
+
+        if (driver.isCuentaEliminada()) {
+            throw new EntityNotFoundException("Driver not found with id: " + driverId);
+        }
         if (driver.getVehicleActiveId() == null) {
             throw new EntityNotFoundException("El conductor " + driverId + " no tiene ningún vehículo activo asignado.");
         }
+
         Vehicle activeVehicle = vehicleRepository.findById(driver.getVehicleActiveId())
-        .orElseThrow(() -> new EntityNotFoundException("Vehículo activo no encontrado para el conductor: " + driverId));
+            .orElseThrow(() -> new EntityNotFoundException("Vehículo activo no encontrado para el conductor: " + driverId));
 
         trip.setConductor(driver);
         trip.setVehiculo(activeVehicle);
         trip.setEstado(EstadoViaje.ACEPTADO);
-        
+
         Trip updatedTrip = tripRepository.save(trip);
 
-        new Thread(new TripSimulator(updatedTrip.getId(), this)).start();
+        Thread simulatorThread = new Thread(new TripSimulator(updatedTrip.getId(), this), "trip-simulator-" + updatedTrip.getId());
+        simulatorThread.setDaemon(true);
+        simulatorThread.start();
 
         return updatedTrip;
     }
 
-    /**
-     * Actualiza el estado del viaje a EN_CURSO (llamado desde el hilo).
-     */
+    @Transactional
     public void startTrip(Long tripId) {
         tripRepository.findById(tripId).ifPresent(trip -> {
-            trip.setEstado(EstadoViaje.EN_CURSO);
-            tripRepository.save(trip);
+            if (trip.getEstado() == EstadoViaje.ACEPTADO) {
+                trip.setEstado(EstadoViaje.EN_CURSO);
+                tripRepository.save(trip);
+            }
         });
     }
 
-    /**
-     * Actualiza el estado del viaje a FINALIZADO (llamado desde el hilo).
-     */
+    @Transactional
     public void finishTrip(Long tripId) {
-    tripRepository.findById(tripId).ifPresent(trip -> {
-        trip.setEstado(EstadoViaje.FINALIZADO);
-        
-        double precio = trip.getPrecio();
-        Passenger p = trip.getCliente();
-        Driver d = trip.getConductor();
+        tripRepository.findById(tripId).ifPresent(trip -> {
+            if (trip.getEstado() == EstadoViaje.CANCELADO || trip.getEstado() == EstadoViaje.FINALIZADO) {
+                return;
+            }
 
-        // 1. Transferencia de dinero
-        p.setMonedero(p.getMonedero() - precio);
-        d.setMonedero(d.getMonedero() + precio);
+            trip.setEstado(EstadoViaje.FINALIZADO);
 
-        // 2. Actualización de posición al DESTINO
-        p.setPosicionActual(trip.getPosicionDestino());
-        d.setPosicionActual(trip.getPosicionDestino());
+            Passenger passenger = trip.getCliente();
+            Driver driver = trip.getConductor();
+            double precio = trip.getPrecio();
 
-        // 3. Persistencia
-        passengerRepository.save(p);
-        driverRepository.save(d);
-        tripRepository.save(trip);
-        
-        System.out.println("LOGICA: Viaje terminado. Pasajero y Conductor movidos al destino.");
-    });
-}
+            if (passenger != null) {
+                passenger.setMonedero(round2(passenger.getMonedero() - precio));
+                passenger.setPosicionActual(trip.getPosicionDestino());
+                passengerRepository.save(passenger);
+            }
+            if (driver != null) {
+                driver.setMonedero(round2(driver.getMonedero() + precio));
+                driver.setPosicionActual(trip.getPosicionDestino());
+                driverRepository.save(driver);
+            }
+
+            tripRepository.save(trip);
+            System.out.println("LOGICA: Viaje terminado. Pasajero y Conductor movidos al destino.");
+        });
+    }
+
+    @Transactional
+    public Trip cancelTripByPassenger(Long tripId, Long passengerId, String reason) {
+        Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
+
+        if (trip.getCliente() == null || !trip.getCliente().getId().equals(passengerId)) {
+            throw new IllegalStateException("El pasajero no puede cancelar un viaje que no es suyo.");
+        }
+        return cancelTrip(trip, "PASSENGER:" + passengerId, reason);
+    }
+
+    @Transactional
+    public Trip cancelTripByDriver(Long tripId, Long driverId, String reason) {
+        Trip trip = tripRepository.findById(tripId)
+            .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
+
+        if (trip.getConductor() == null || !trip.getConductor().getId().equals(driverId)) {
+            throw new IllegalStateException("El conductor no puede cancelar un viaje que no tiene asignado.");
+        }
+        return cancelTrip(trip, "DRIVER:" + driverId, reason);
+    }
+
+    public Trip getTripById(Long tripId) {
+        return tripRepository.findById(tripId)
+            .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
+    }
+
+    public List<Trip> getAllTrips() {
+        List<Trip> todosTrips = tripRepository.findAll();
+        ArrayList<Trip> tripsSolicitados = new ArrayList<>();
+
+        for (Trip trip : todosTrips) {
+            if (trip.getEstado() == EstadoViaje.SOLICITADO) {
+                tripsSolicitados.add(trip);
+            }
+        }
+        return tripsSolicitados;
+    }
+
+    public List<TripHistoryDTO> getPassengerHistory(Long passengerId) {
+        return tripRepository.findByClienteIdOrderByIdDesc(passengerId).stream()
+            .map(TripHistoryDTO::new)
+            .toList();
+    }
+
+    public List<TripHistoryDTO> getDriverHistory(Long driverId) {
+        return tripRepository.findByConductorIdOrderByIdDesc(driverId).stream()
+            .map(TripHistoryDTO::new)
+            .toList();
+    }
+
+    public List<String> fromTripToString(List<Trip> allTrips) {
+        List<String> listStrings = new ArrayList<>();
+        for (Trip trip : allTrips) {
+            String origen = formatPosition(trip.getPosicionOrigen());
+            String destino = formatPosition(trip.getPosicionDestino());
+            String s = trip.getId() + "__" + origen + "__" + destino + "__" + trip.getPrecio();
+            listStrings.add(s);
+        }
+        return listStrings;
+    }
+
+    private Trip cancelTrip(Trip trip, String cancelledBy, String reason) {
+        if (trip.getEstado() == EstadoViaje.FINALIZADO) {
+            throw new IllegalStateException("No se puede cancelar un viaje finalizado.");
+        }
+        if (trip.getEstado() == EstadoViaje.CANCELADO) {
+            throw new IllegalStateException("El viaje ya estaba cancelado.");
+        }
+
+        trip.setEstado(EstadoViaje.CANCELADO);
+        trip.setCancelledBy(cancelledBy);
+        trip.setCancelReason(reason == null || reason.isBlank() ? "Cancelado por usuario" : reason.trim());
+        trip.setCancelledAt(LocalDateTime.now());
+        return tripRepository.save(trip);
+    }
+
+    private void validateTripRequest(TripRequestDTO request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Datos de viaje no recibidos.");
+        }
+        if (request.getPassengerId() == null) {
+            throw new IllegalArgumentException("El passengerId es obligatorio.");
+        }
+        if (request.getOrigen() == null || request.getDestino() == null) {
+            throw new IllegalArgumentException("Origen y destino son obligatorios.");
+        }
+    }
+
     private double calculatePrice(Posicion origin, Posicion destination, CategoriaVehiculo category) {
-        final int R = 6371; // Radio de la Tierra en km
+        final int earthRadiusKm = 6371;
+        CategoriaVehiculo selectedCategory = category != null ? category : CategoriaVehiculo.UBERX;
 
         double lat1Rad = Math.toRadians(origin.getLatitud());
         double lat2Rad = Math.toRadians(destination.getLatitud());
         double deltaLat = Math.toRadians(destination.getLatitud() - origin.getLatitud());
         double deltaLon = Math.toRadians(destination.getLongitud() - origin.getLongitud());
 
-        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                   Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-                   Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
-        
+        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2)
+            + Math.cos(lat1Rad) * Math.cos(lat2Rad)
+            * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c; // Distancia en km
+        double distance = earthRadiusKm * c;
 
-        // Multiplicador basado en la categoría
-        double categoryMultiplier;
-        switch (category) {
-            case BLACK:
-                categoryMultiplier = 2.0;
-                break;
-            case XL:
-                categoryMultiplier = 1.8;
-                break;
-            case UBERX:
-            default:
-                categoryMultiplier = 1.2;
-                break;
-        }
+        double categoryMultiplier = switch (selectedCategory) {
+            case BLACK -> 2.0;
+            case XL -> 1.8;
+            case UBERX -> 1.2;
+        };
 
-        // Precio = (distancia * multiplicador) + tarifa base
-        double price = (distance * categoryMultiplier) + 2.0; // 2.0 es una tarifa base
-
-        // Redondear a 2 decimales
-        return Math.round(price * 100.0) / 100.0;
+        return round2((distance * categoryMultiplier) + 2.0);
     }
 
-    public List<Trip> getAllTrips(){
-        List<Trip> todosTrips=  tripRepository.findAll();
-        ArrayList<Trip> tripsSolicitados = new ArrayList<>();
-
-        for(Trip t1: todosTrips){
-            if(String.valueOf( t1.getEstado()) =="SOLICITADO"){
-                tripsSolicitados.add(t1);
-            }
+    private String formatPosition(Posicion posicion) {
+        if (posicion == null) {
+            return "(sin posicion)";
         }
-        return tripsSolicitados;
+        return "(" + posicion.getLongitud() + ", " + posicion.getLatitud() + ")";
     }
 
-    public List<String> fromTripToString(List<Trip> allTrips){
-        List<String> list_strings = new ArrayList<>();
-        for(Trip t1 :allTrips){
-            String s1=+t1.getId()+ "__("+t1.getPosicionOrigen().getLongitud()+", "+t1.getPosicionOrigen().getLatitud()+")__("+
-            t1.getPosicionDestino().getLongitud()+", "+t1.getPosicionDestino().getLatitud()+")__"+t1.getPrecio();
-            list_strings.add(s1);
-        }
-        return list_strings;
+    private double round2(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 }

@@ -1,60 +1,70 @@
-name: maven-site-integration
+name: build-test-docs-pages
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch: # Permite lanzarlo a mano desde GitHub
+    branches: ["main", "master"]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  MAVEN_OPTS: -Djava.awt.headless=true
 
 jobs:
-  build-and-test:
+  build-test-docs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Bajamos vuestro código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Ponemos Java 21 (según tu ejemplo)
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: "21"
+          distribution: "temurin"
+          cache: "maven"
 
-      # 3. LANZAR TESTS (Aquí Spring levanta H2 solo)
-      # Ejecutamos tests unitarios y generamos el reporte de JaCoCo que ya tienes
-        #  1- Cobertura (JaCoCo) + Tests Unitarios
-      - name: Run tests with JaCoCo
-        run: mvn clean test jacoco:report
+      - name: Make Maven wrapper executable
+        run: chmod +x ./ubesto/mvnw
+
+      - name: Run unit, integration and acceptance tests with JaCoCo
         working-directory: ./ubesto
-          # Si tu pom.xml está en una carpeta, añade: working-directory: ./ubesto
+        run: ./mvnw -B clean verify -Djava.awt.headless=true -Dtest=UbestoApplicationTests,AceptacionTest,BacklogStoriesTest
 
-        #  2- Tests de Rendimiento
       - name: Run performance tests
-        run: mvn -Pperformance integration-test
-        continue-on-error: true # Para que si falla el tiempo de respuesta, el pipeline siga
-      
-        #  3- Tests de Integración (Aceptación)
-      - name: Run Integration Tests
-        run: mvn test -Pintegration
         working-directory: ./ubesto
-        
-      # 4. GENERAR SITE (Opcional, si queréis la web de Maven)
-      - name: Generate Maven site
-        run: mvn site
-        working-directory: ./ubesto
+        run: ./mvnw -B test -Pperformance -Djava.awt.headless=true
+        continue-on-error: true
 
-      # 5. DESPLEGAR REPORTES A GITHUB PAGES
-      # Esto subirá vuestro reporte de cobertura a la web de vuestro repo
-      - name: Deploy Reports to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Build GitHub Pages with Jekyll
+        uses: actions/jekyll-build-pages@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/site/jacoco # Subimos directamente el reporte de JaCoCo
-          publish_branch: gh-pages
+          source: ./docs
+          destination: ./public
+
+      - name: Attach JaCoCo report to Pages artifact
+        run: |
+          if [ -d ubesto/target/site/jacoco ]; then
+            mkdir -p public/jacoco
+            cp -R ubesto/target/site/jacoco/* public/jacoco/
+          fi
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/deploy-pages@v4

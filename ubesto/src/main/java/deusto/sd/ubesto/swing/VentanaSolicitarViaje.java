@@ -7,51 +7,44 @@ import javax.swing.border.LineBorder;
 
 import java.awt.*;
 import java.net.URI;
-import java.net.http.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 import deusto.sd.ubesto.entity.Vehicle.CategoriaVehiculo;
 
 public class VentanaSolicitarViaje extends JFrame {
-    
-    final Color fondoClarito_verde = new Color(224, 250, 228);
-    final LineBorder btnNormalBorde = new LineBorder(new Color(47,158,68),2,true);
-    final Color btnNormalVerde =new Color(79,201,95); // Color verde estilo boceto: Color(100, 200, 100)
+    final Color fondoClaritoVerde = new Color(224, 250, 228);
+    final LineBorder btnNormalBorde = new LineBorder(new Color(47, 158, 68), 2, true);
+    final Color btnNormalVerde = new Color(79, 201, 95);
     final Font fontBtnNormal = new Font("SansSerif", Font.BOLD, 12);
     final Color btnSalirFont = new Color(47, 158, 68);
-    final LineBorder btnSalirBorde = new LineBorder(new Color(47,158,68),2,true);
-    final EmptyBorder paddingBtnAtras =  new EmptyBorder(10, 15, 10, 15);
+    final LineBorder btnSalirBorde = new LineBorder(new Color(47, 158, 68), 2, true);
+    final EmptyBorder paddingBtnAtras = new EmptyBorder(10, 15, 10, 15);
 
     public VentanaSolicitarViaje(String emailPasajero, Long idPasajero) {
         setTitle("Solicitar Viaje");
-        setSize(450, 400);
+        setSize(460, 420);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setBackground(fondoClarito_verde);
+        getContentPane().setBackground(fondoClaritoVerde);
 
-        JPanel panelForm = new JPanel(new GridLayout(5, 2, 10, 10));
+        JPanel panelForm = new JPanel(new GridLayout(6, 2, 10, 10));
         panelForm.setBorder(BorderFactory.createTitledBorder("Introduce las coordenadas"));
-        panelForm.setBackground(fondoClarito_verde);
+        panelForm.setBackground(fondoClaritoVerde);
 
-        JTextField txtLatOrigen = new JTextField("0.0"); 
-        JTextField txtLonOrigen = new JTextField("0.0");
-        JTextField txtLatDestino = new JTextField("1.0"); 
-        JTextField txtLonDestino = new JTextField("1.0");
+        JTextField txtLatOrigen = new JTextField("43.2630");
+        JTextField txtLonOrigen = new JTextField("-2.9350");
+        JTextField txtLatDestino = new JTextField("43.3200");
+        JTextField txtLonDestino = new JTextField("-1.9800");
         JComboBox<CategoriaVehiculo> cbCategoria = new JComboBox<>(CategoriaVehiculo.values());
-        
-        JLabel l1= new JLabel("Latitud Origen:");l1.setOpaque(true);l1.setBackground(fondoClarito_verde);
-        panelForm.add(l1); panelForm.add(txtLatOrigen);
 
-        JLabel l2= new JLabel("Longitud Origen:");l2.setOpaque(true);l2.setBackground(fondoClarito_verde);
-        panelForm.add(l2); panelForm.add(txtLonOrigen);
-        JLabel l3= new JLabel("Longitud Destino:");l3.setOpaque(true);l3.setBackground(fondoClarito_verde);
-        panelForm.add(l3); panelForm.add(txtLatDestino);
-        JLabel l4= new JLabel("Categoría Deseada:");l4.setOpaque(true);l4.setBackground(fondoClarito_verde);
-        panelForm.add(l4); panelForm.add(txtLonDestino);
-
-        // panelForm.add(new JLabel("Longitud Origen:")); panelForm.add(txtLonOrigen);
-        // panelForm.add(new JLabel("Latitud Destino:")); panelForm.add(txtLatDestino);
-        // panelForm.add(new JLabel("Longitud Destino:")); panelForm.add(txtLonDestino);
-        // panelForm.add(new JLabel("Categoría Deseada:")); panelForm.add(cbCategoria);
+        panelForm.add(label("Latitud Origen:")); panelForm.add(txtLatOrigen);
+        panelForm.add(label("Longitud Origen:")); panelForm.add(txtLonOrigen);
+        panelForm.add(label("Latitud Destino:")); panelForm.add(txtLatDestino);
+        panelForm.add(label("Longitud Destino:")); panelForm.add(txtLonDestino);
+        panelForm.add(label("Categoría Deseada:")); panelForm.add(cbCategoria);
 
         JButton btnSolicitar = new JButton("Solicitar Uber");
         btnSolicitar.setBackground(btnNormalVerde);
@@ -66,40 +59,51 @@ public class VentanaSolicitarViaje extends JFrame {
         panelForm.add(btnVolver); panelForm.add(btnSolicitar);
         add(panelForm, BorderLayout.CENTER);
 
-        // EVENTO: VOLVER
         btnVolver.addActionListener(e -> {
             new DashboardFrame("PASAJERO", emailPasajero, idPasajero).setVisible(true);
             dispose();
         });
 
-        // EVENTO: SOLICITAR VIAJE
         btnSolicitar.addActionListener(e -> {
             try {
-                String url = "http://localhost:8080/trips/request"; 
+                Double.parseDouble(txtLatOrigen.getText());
+                Double.parseDouble(txtLonOrigen.getText());
+                Double.parseDouble(txtLatDestino.getText());
+                Double.parseDouble(txtLonDestino.getText());
+
                 String jsonBody = String.format(
-                    "{\"passengerId\":%d, \"origen\":{\"latitud\":%s, \"longitud\":%s}, \"destino\":{\"latitud\":%s, \"longitud\":%s}, \"categoria\":\"%s\"}", 
-                    idPasajero, txtLatOrigen.getText(), txtLonOrigen.getText(), txtLatDestino.getText(), txtLonDestino.getText(), cbCategoria.getSelectedItem().toString()
+                    "{\"passengerId\":%d, \"origen\":{\"latitud\":%s, \"longitud\":%s}, \"destino\":{\"latitud\":%s, \"longitud\":%s}, \"categoria\":\"%s\"}",
+                    idPasajero, txtLatOrigen.getText(), txtLonOrigen.getText(), txtLatDestino.getText(), txtLonDestino.getText(), cbCategoria.getSelectedItem()
                 );
 
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                        .build();
-                        
+                    .uri(URI.create("http://localhost:8080/trips/request"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() == 201) {
                     JOptionPane.showMessageDialog(this, "¡Viaje solicitado con éxito!");
-                    btnVolver.doClick(); // Volvemos automáticamente al dashboard
+                    btnVolver.doClick();
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al solicitar el viaje.\n" + response.body(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (Exception ex) { 
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(this, "Las coordenadas deben ser números.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error de conexión con el servidor.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
+
+    private JLabel label(String text) {
+        JLabel label = new JLabel(text);
+        label.setOpaque(true);
+        label.setBackground(fondoClaritoVerde);
+        return label;
     }
 }

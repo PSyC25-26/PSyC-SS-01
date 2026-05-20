@@ -1,0 +1,11 @@
+target/
+.git/
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+PSyC-SS-01/data/
+data/
+*.log
+*.db
+*.trace.db
+*.lock.db
+.DS_Store

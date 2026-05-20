@@ -1,10 +1,14 @@
 package deusto.sd.ubesto.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,7 +19,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "trips")
 public class Trip {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -44,26 +49,34 @@ public class Trip {
     })
     private Posicion posicionDestino;
 
-    @Column(name="precio")
+    @Column(name = "precio")
     private double precio;
-    
-    @Column(name="estado")
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado")
     private EstadoViaje estado;
 
-    // NUEVO ATRIBUTO: Valoración del viaje
-    @Column(name="rating")
+    @Column(name = "rating")
     private Integer rating;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
+    @Column(name = "cancelled_by")
+    private String cancelledBy;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
 
     public enum EstadoViaje {
         SOLICITADO, ACEPTADO, EN_CURSO, FINALIZADO, CANCELADO
     }
 
-    // Constructor vacío
     public Trip() {
     }
 
-    public Trip(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen, Posicion posicionDestino,
-        double precio, EstadoViaje estado) {
+    public Trip(Long id, Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen,
+                Posicion posicionDestino, double precio, EstadoViaje estado) {
         this.id = id;
         this.cliente = cliente;
         this.conductor = conductor;
@@ -74,8 +87,8 @@ public class Trip {
         this.estado = estado;
     }
 
-    public Trip( Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen, Posicion posicionDestino,
-        double precio, EstadoViaje estado) {
+    public Trip(Passenger cliente, Driver conductor, Vehicle vehiculo, Posicion posicionOrigen,
+                Posicion posicionDestino, double precio, EstadoViaje estado) {
         this.cliente = cliente;
         this.conductor = conductor;
         this.vehiculo = vehiculo;
@@ -85,7 +98,6 @@ public class Trip {
         this.estado = estado;
     }
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -97,13 +109,13 @@ public class Trip {
 
     public Vehicle getVehiculo() { return vehiculo; }
     public void setVehiculo(Vehicle vehiculo) { this.vehiculo = vehiculo; }
-   
+
     public double getPrecio() { return precio; }
     public void setPrecio(double precio) { this.precio = precio; }
 
     public EstadoViaje getEstado() { return estado; }
     public void setEstado(EstadoViaje estado) { this.estado = estado; }
-    
+
     public Posicion getPosicionOrigen() { return posicionOrigen; }
     public void setPosicionOrigen(Posicion posicionOrigen) { this.posicionOrigen = posicionOrigen; }
 
@@ -112,4 +124,13 @@ public class Trip {
 
     public Integer getRating() { return rating; }
     public void setRating(Integer rating) { this.rating = rating; }
+
+    public String getCancelReason() { return cancelReason; }
+    public void setCancelReason(String cancelReason) { this.cancelReason = cancelReason; }
+
+    public String getCancelledBy() { return cancelledBy; }
+    public void setCancelledBy(String cancelledBy) { this.cancelledBy = cancelledBy; }
+
+    public LocalDateTime getCancelledAt() { return cancelledAt; }
+    public void setCancelledAt(LocalDateTime cancelledAt) { this.cancelledAt = cancelledAt; }
 }

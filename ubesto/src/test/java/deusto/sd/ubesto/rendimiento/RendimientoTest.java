@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,19 @@ public class RendimientoTest {
 
     // Prefijo único por ejecución para evitar colisiones con otras suites
     private static final String RUN_ID = String.valueOf(System.currentTimeMillis());
+
+    @BeforeAll
+    static void waitForVisualVmIfRequested() throws InterruptedException {
+        String secondsProperty = System.getProperty("visualvm.wait.seconds");
+        if (secondsProperty == null || secondsProperty.isBlank()) {
+            return;
+        }
+        long seconds = Long.parseLong(secondsProperty);
+        if (seconds > 0) {
+            System.out.println("[VisualVM] Esperando " + seconds + " segundos antes de lanzar los tests de rendimiento...");
+            Thread.sleep(seconds * 1000L);
+        }
+    }
 
     @BeforeEach
     void setup() {

@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 @Repository
 public interface LoggedUserRepository extends JpaRepository<LoggedUser, Long> {
     Optional<LoggedUser> findByUserid(Long id);
-    @Transactional // IMPORTANTE: Los borrados necesitan una transacción
-    Optional<LoggedUser> deleteByUserid(Long user_id); 
+
+    @Transactional
+    void deleteByUserid(Long userId);
 }
