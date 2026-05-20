@@ -50,9 +50,11 @@ jobs:
 
       - name: Attach JaCoCo report to Pages artifact
         run: |
+          mkdir -p ./public
+
           if [ -d ubesto/target/site/jacoco ]; then
-            mkdir -p public/jacoco
-            cp -R ubesto/target/site/jacoco/* public/jacoco/
+            mkdir -p ./public/jacoco
+            cp -r ubesto/target/site/jacoco/* ./public/jacoco/
           fi
 
       - name: Configure Pages
