@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DashboardFrame extends JFrame {
-    final Dimension d = new Dimension(150, 120);
+    final Dimension d = new Dimension(150, 150);
     final Color fondoClaritoVerde = new Color(224, 250, 228);
     final LineBorder btnNormalBorde = new LineBorder(new Color(47, 158, 68), 2, true);
     final Color btnNormalVerde = new Color(79, 201, 95);
@@ -26,7 +26,7 @@ public class DashboardFrame extends JFrame {
 
     public DashboardFrame(String rol, String email, Long idUsuario) {
         setTitle("Dashboard - " + rol);
-        setSize(720, 420);
+        setSize(720, 370);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
