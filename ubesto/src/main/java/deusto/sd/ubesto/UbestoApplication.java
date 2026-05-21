@@ -15,6 +15,7 @@ import deusto.sd.ubesto.swing.VentanaPrincipal;
 public class UbestoApplication {
 
     public static void main(String[] args) {
+        System.setProperty("java.awt.headless", "false");
         ConfigurableApplicationContext context = SpringApplication.run(UbestoApplication.class, args);
         boolean uiEnabled = context.getEnvironment().getProperty("app.ui.enabled", Boolean.class, true);
 
